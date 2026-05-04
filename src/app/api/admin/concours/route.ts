@@ -17,30 +17,41 @@ export async function GET() {
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(req: Request) {
   try {
-    const user = await getCurrentUser()
-    if (!user || !['SUPER_ADMIN', 'RESPONSABLE'].includes(user.role)) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
-    }
-    const body = await request.json()
+    const body = await req.json()
+
+    console.log("🔥 BODY REÇU:", body)
+
     const data = concoursSchema.parse(body)
+
     const concours = await prisma.concours.create({
       data: {
-        ...data,
-        fraisInscription: data.fraisInscription,
+        titre: data.titre,
+        description: data.description,
+        departement: data.departement,
+        nombrePlaces: Number(data.nombrePlaces),
+        fraisInscription: Number(data.fraisInscription),
         dateOuverture: new Date(data.dateOuverture),
         dateCloture: new Date(data.dateCloture),
         dateConcours: data.dateConcours ? new Date(data.dateConcours) : null,
         dateResultats: data.dateResultats ? new Date(data.dateResultats) : null,
-        guideUrl: data.guideUrl,
-        conditionsAdmission: data.conditionsAdmission,
+        conditionsAdmission: data.conditionsAdmission ?? null,
+        guideUrl: data.guideUrl ?? null,
         createdBy: user.id,
       },
     })
+
     return NextResponse.json(concours, { status: 201 })
+
   } catch (error: any) {
-    if (error.name === 'ZodError') return NextResponse.json({ error: 'Données invalides', details: error.errors }, { status: 400 })
-    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
+    console.error("💥 ERREUR:", error)
+
+    return new Response(
+      JSON.stringify({
+        message: error.message,
+      }),
+      { status: 400 }
+    )
   }
 }

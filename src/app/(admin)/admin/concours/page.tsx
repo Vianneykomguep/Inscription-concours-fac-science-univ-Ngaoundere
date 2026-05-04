@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
 import { formatDate } from '@/lib/utils'
+import ConcoursRowActions from '@/components/admin/ConcoursRowActions'
 
 const STATUS_BADGES: Record<string, string> = {
   BROUILLON: 'badge-gray',
@@ -35,6 +36,7 @@ export default async function AdminConcoursPage() {
               <th className="px-4 py-3 font-medium text-gray-500">Ouverture</th>
               <th className="px-4 py-3 font-medium text-gray-500">Clôture</th>
               <th className="px-4 py-3 font-medium text-gray-500">Statut</th>
+              <th className="px-4 py-3 font-medium text-gray-500">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
@@ -48,6 +50,9 @@ export default async function AdminConcoursPage() {
                 <td className="px-4 py-4">
                   <span className={STATUS_BADGES[item.statut] ?? 'badge-gray'}>{item.statut}</span>
                 </td>
+                <td className="px-4 py-4">
+                  <ConcoursRowActions id={item.id} titre={item.titre} statut={item.statut} />
+                </td>
               </tr>
             ))}
           </tbody>
@@ -56,3 +61,4 @@ export default async function AdminConcoursPage() {
     </div>
   )
 }
+

@@ -23,9 +23,10 @@ export const concoursSchema = z.object({
   dateCloture: z.string(),
   dateConcours: z.string().optional(),
   dateResultats: z.string().optional(),
-  guideUrl: z.string().url('URL invalide').optional(),
+  guideUrl: z.string().optional(),
   conditionsAdmission: z.string().optional(),
 })
+
 
 export const candidatureStep2Schema = z.object({
   nom: z.string().min(2, 'Le nom est requis'),
