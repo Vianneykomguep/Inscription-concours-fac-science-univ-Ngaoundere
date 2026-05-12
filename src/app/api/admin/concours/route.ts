@@ -37,9 +37,13 @@ export async function POST(req: Request) {
 
     const concours = await prisma.concours.create({
       data: {
+        type: data.type,
         titre: data.titre,
         description: data.description,
         departement: data.departement,
+        filieres: data.filieres,
+        centres: data.centres,
+        piecesRequises: data.piecesRequises,
 
         nombrePlaces: Number(data.nombrePlaces),
 
@@ -58,8 +62,16 @@ export async function POST(req: Request) {
 
         conditionsAdmission: data.conditionsAdmission ?? null,
         guideUrl: data.guideUrl ?? null,
+        isActive: data.isActive ?? true,
 
         createdBy: user.id,
+        documentsRequis: {
+          create: data.piecesRequises.map((piece, index) => ({
+            nom: piece,
+            ordre: index,
+            obligatoire: true,
+          })),
+        },
       },
     })
 

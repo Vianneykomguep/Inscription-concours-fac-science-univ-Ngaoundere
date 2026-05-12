@@ -10,7 +10,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
       where: { id: params.id },
       include: {
         concours: { include: { documentsRequis: true } },
-        documents: true, paiements: true,
+        documents: true, uploadedDocuments: true, paiements: true,
         messages: { orderBy: { createdAt: 'asc' } },
       },
     })

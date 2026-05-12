@@ -35,7 +35,7 @@ export default async function DashboardPage() {
           <h1 className="text-2xl font-bold text-gray-900">Bonjour, {user.firstName} </h1>
           <p className="text-gray-600">Bienvenue dans votre espace candidat</p>
         </div>
-        <Link href="/candidatures/new" className="btn-primary flex items-center gap-2">
+        <Link href="/concours" className="btn-primary flex items-center gap-2">
           <Plus className="h-4 w-4" /> Nouvelle candidature
         </Link>
       </div>
@@ -105,7 +105,7 @@ export default async function DashboardPage() {
         <div className="card text-center py-12">
           <FileText className="mx-auto h-12 w-12 text-gray-400 mb-4" />
           <p className="text-gray-600">Aucune candidature pour le moment</p>
-          <Link href="/candidatures/new" className="btn-primary mt-4 inline-flex items-center gap-2">
+          <Link href="/concours" className="btn-primary mt-4 inline-flex items-center gap-2">
             <Plus className="h-4 w-4" /> Commencer une candidature
           </Link>
         </div>

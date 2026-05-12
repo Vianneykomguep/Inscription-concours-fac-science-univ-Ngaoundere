@@ -7,6 +7,10 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+//
+// ENUMS
+//
+
 enum UserRole {
   CANDIDAT
   AGENT
@@ -20,6 +24,13 @@ enum ConcoursStatut {
   EN_COURS
   CLOTURE
   ARCHIVE
+}
+
+enum ConcoursType {
+  STAB_L1
+  STAB_L3
+  STAB_MASTER
+  STAB_MASTER_PRO
 }
 
 enum CandidatureStatut {
@@ -48,205 +59,450 @@ enum PaiementMethode {
   QUITUS
 }
 
-model User {
-  id            String    @id @default(uuid())
-  email         String    @unique
-  phone         String?   @unique
-  passwordHash  String    @map("password_hash")
-  role          UserRole  @default(CANDIDAT)
-  firstName     String    @map("first_name")
-  lastName      String    @map("last_name")
-  dateOfBirth   DateTime? @map("date_of_birth")
-  nationality   String?
-  address       String?
-  city          String?
-  photoUrl      String?   @map("photo_url")
-  emailVerified Boolean   @default(false) @map("email_verified")
-  otpCode       String?   @map("otp_code")
-  otpExpiresAt  DateTime? @map("otp_expires_at")
-  isActive      Boolean   @default(true) @map("is_active")
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
-  createdBy     String?   @map("created_by")
+enum DocumentStatut {
+  EN_ATTENTE
+  VALIDE
+  REJETE
+}
 
-  candidatures  Candidature[]
+//
+// USERS
+//
+
+model User {
+  id String @id @default(uuid())
+
+  email String  @unique
+  phone String? @unique
+
+  passwordHash String @map("password_hash")
+
+  role UserRole @default(CANDIDAT)
+
+  firstName String @map("first_name")
+  lastName  String @map("last_name")
+
+  dateOfBirth DateTime? @map("date_of_birth")
+
+  nationality String?
+
+  address String?
+  city    String?
+
+  photoUrl String? @map("photo_url")
+
+  emailVerified Boolean @default(false) @map("email_verified")
+
+  otpCode      String?   @map("otp_code")
+  otpExpiresAt DateTime? @map("otp_expires_at")
+
+  isActive Boolean @default(true) @map("is_active")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  //
+  // RELATIONS
+  //
+
+  candidatures Candidature[] @relation("UserCandidatures")
+
   notifications Notification[]
-  messagesSent  Message[]      @relation("sender")
-  auditLogs     AuditLog[]
+
+  messagesSent Message[] @relation("sender")
+
+  auditLogs AuditLog[]
 
   @@map("users")
 }
 
+//
+// CONCOURS
+//
+
 model Concours {
-  id              String          @id @default(uuid())
-  titre           String
-  description     String          @db.Text
-  departement     String
-  nombrePlaces    Int             @map("nombre_places")
-  fraisInscription Decimal        @map("frais_inscription") @db.Decimal(10,2)
-  conditionsAdmission String?     @map("conditions_admission") @db.Text
-  dateOuverture   DateTime        @map("date_ouverture")
-  dateCloture     DateTime        @map("date_cloture")
-  dateConcours    DateTime?       @map("date_concours")
-  dateResultats   DateTime?       @map("date_resultats")
-  statut          ConcoursStatut  @default(BROUILLON)
-  guideUrl        String?         @map("guide_url")
-  createdBy       String          @map("created_by")
-  createdAt       DateTime        @default(now()) @map("created_at")
-  updatedAt       DateTime        @updatedAt @map("updated_at")
+  id String @id @default(uuid())
+
+  type ConcoursType
+
+  titre String
+
+  description String @db.Text
+
+  departement String
+
+  filieres String[] @default([])
+
+  centres String[] @default([])
+
+  piecesRequises String[] @default([]) @map("pieces_requises")
+
+  nombrePlaces Int @map("nombre_places")
+
+  fraisInscription Decimal @map("frais_inscription") @db.Decimal(10, 2)
+
+  conditionsAdmission String? @map("conditions_admission") @db.Text
+
+  dateOuverture DateTime @map("date_ouverture")
+
+  dateCloture DateTime @map("date_cloture")
+
+  dateConcours DateTime? @map("date_concours")
+
+  dateResultats DateTime? @map("date_resultats")
+
+  statut ConcoursStatut @default(BROUILLON)
+
+  guideUrl String? @map("guide_url")
+
+  isActive Boolean @default(true) @map("is_active")
+
+  createdBy String @map("created_by")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  //
+  // RELATIONS
+  //
 
   documentsRequis ConcoursDocument[]
-  candidatures    Candidature[]
-  resultats       Resultat[]
+
+  candidatures Candidature[] @relation("ConcoursCandidatures")
+
+  resultats Resultat[]
 
   @@map("concours")
 }
 
-model ConcoursDocument {
-  id          String   @id @default(uuid())
-  concoursId  String   @map("concours_id")
-  nom         String
-  description String?
-  obligatoire Boolean  @default(true)
-  maxSize     Int      @default(5242880) @map("max_size")
+//
+// DOCUMENTS REQUIS PAR CONCOURS
+//
 
-  concours    Concours @relation(fields: [concoursId], references: [id], onDelete: Cascade)
+model ConcoursDocument {
+  id String @id @default(uuid())
+
+  concoursId String @map("concours_id")
+
+  nom String
+
+  description String?
+
+  obligatoire Boolean @default(true)
+
+  maxSize Int @default(5242880) @map("max_size")
+
+  acceptedFormats String[] @default([]) @map("accepted_formats")
+
+  ordre Int @default(0)
+
+  //
+  // RELATIONS
+  //
+
+  concours Concours @relation(fields: [concoursId], references: [id], onDelete: Cascade)
 
   @@map("concours_documents")
 }
 
+//
+// CANDIDATURES
+//
+
 model Candidature {
-  id              String             @id @default(uuid())
-  userId          String             @map("user_id")
-  concoursId      String             @map("concours_id")
-  numeroDossier   String             @unique @map("numero_dossier")
-  statut          CandidatureStatut  @default(BROUILLON)
-  etapeActuelle   Int                @default(1) @map("etape_actuelle")
-  
-  // Informations personnelles (étape 2)
-  nom             String?
-  prenom          String?
-  dateNaissance   DateTime?          @map("date_naissance")
-  lieuNaissance   String?            @map("lieu_naissance")
-  sexe            String?
-  nationalite     String?
-  telephone       String?
-  adresse         String?
-  ville           String?
-  
-  // Parcours académique (étape 3)
-  dernierDiplome  String?            @map("dernier_diplome")
-  etablissement   String?
-  anneeObtention  Int?               @map("annee_obtention")
-  mention         String?
-  autresFormations String?           @map("autres_formations") @db.Text
-  
-  motifRejet      String?            @map("motif_rejet") @db.Text
-  complementInfo  String?            @map("complement_info") @db.Text
-  
-  soumisLe        DateTime?          @map("soumis_le")
-  createdAt       DateTime           @default(now()) @map("created_at")
-  updatedAt       DateTime           @updatedAt @map("updated_at")
+  id String @id @default(cuid())
 
-  user            User               @relation(fields: [userId], references: [id])
-  concours        Concours           @relation(fields: [concoursId], references: [id])
-  documents       CandidatureDocument[]
-  paiements       Paiement[]
-  messages        Message[]
+  type ConcoursType
 
-  @@unique([userId, concoursId])
+  filiere String
+
+  centre String
+
+  informations Json
+
+  statut CandidatureStatut @default(BROUILLON)
+
+  numeroDossier String @map("numero_dossier")
+
+  numeroRecepisse String? @map("numero_recepisse")
+
+  etapeActuelle Int @default(1) @map("etape_actuelle")
+
+  nom String?
+
+  prenom String?
+
+  dateNaissance DateTime? @map("date_naissance")
+
+  lieuNaissance String? @map("lieu_naissance")
+
+  sexe String?
+
+  nationalite String?
+
+  telephone String?
+
+  adresse String?
+
+  ville String?
+
+  dernierDiplome String? @map("dernier_diplome")
+
+  etablissement String?
+
+  anneeObtention Int? @map("annee_obtention")
+
+  mention String?
+
+  autresFormations String? @map("autres_formations") @db.Text
+
+  commentaireAdmin String? @db.Text
+
+  motifRejet String? @map("motif_rejet") @db.Text
+
+  complementInfo String? @map("complement_info") @db.Text
+
+  submittedAt DateTime? @map("submitted_at")
+
+  soumisLe DateTime? @map("soumis_le")
+
+  validatedAt DateTime? @map("validated_at")
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  //
+  // RELATIONS
+  //
+
+  userId String
+
+  concoursId String
+
+  user User @relation("UserCandidatures", fields: [userId], references: [id])
+
+  concours Concours @relation("ConcoursCandidatures", fields: [concoursId], references: [id])
+
+  documents CandidatureDocument[]
+
+  uploadedDocuments UploadedDocument[]
+
+  paiements Paiement[]
+
+  messages Message[]
+
+  resultats Resultat[]
+
   @@map("candidatures")
 }
 
-model CandidatureDocument {
-  id              String   @id @default(uuid())
-  candidatureId   String   @map("candidature_id")
-  type            String
-  nomFichier      String   @map("nom_fichier")
-  url             String
-  tailleFichier   Int      @map("taille_fichier")
-  mimeType        String   @map("mime_type")
-  statut          String   @default("en_attente")
-  createdAt       DateTime @default(now()) @map("created_at")
+model UploadedDocument {
+  id String @id @default(cuid())
 
-  candidature     Candidature @relation(fields: [candidatureId], references: [id], onDelete: Cascade)
+  candidatureId String
+  candidature   Candidature @relation(fields: [candidatureId], references: [id], onDelete: Cascade)
+
+  type    String
+  fileUrl String
+
+  verified Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@map("uploaded_documents")
+}
+
+//
+// DOCUMENTS UPLOADÉS PAR LE CANDIDAT
+//
+
+model CandidatureDocument {
+  id String @id @default(uuid())
+
+  candidatureId String @map("candidature_id")
+
+  type String
+
+  nomFichier String @map("nom_fichier")
+
+  url String
+
+  tailleFichier Int @map("taille_fichier")
+
+  mimeType String @map("mime_type")
+
+  statut DocumentStatut @default(EN_ATTENTE)
+
+  commentaireAdmin String? @db.Text
+
+  verifiedBy String? @map("verified_by")
+
+  verifiedAt DateTime? @map("verified_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  //
+  // RELATIONS
+  //
+
+  candidature Candidature @relation(fields: [candidatureId], references: [id], onDelete: Cascade)
 
   @@map("candidature_documents")
 }
 
-model Paiement {
-  id              String          @id @default(uuid())
-  candidatureId   String          @map("candidature_id")
-  montant         Decimal         @db.Decimal(10,2)
-  methode         PaiementMethode
-  statut          PaiementStatut  @default(EN_ATTENTE)
-  referenceExterne String?        @map("reference_externe")
-  quitusFichierUrl String?        @map("quitus_fichier_url")
-  confirmeParId   String?         @map("confirme_par_id")
-  confirmeLe      DateTime?       @map("confirme_le")
-  createdAt       DateTime        @default(now()) @map("created_at")
-  updatedAt       DateTime        @updatedAt @map("updated_at")
+//
+// PAIEMENTS
+//
 
-  candidature     Candidature     @relation(fields: [candidatureId], references: [id])
+model Paiement {
+  id String @id @default(uuid())
+
+  candidatureId String @map("candidature_id")
+
+  montant Decimal @db.Decimal(10, 2)
+
+  methode PaiementMethode
+
+  statut PaiementStatut @default(EN_ATTENTE)
+
+  referenceExterne String? @map("reference_externe")
+
+  quitusFichierUrl String? @map("quitus_fichier_url")
+
+  confirmeParId String? @map("confirme_par_id")
+
+  confirmeLe DateTime? @map("confirme_le")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  //
+  // RELATIONS
+  //
+
+  candidature Candidature @relation(fields: [candidatureId], references: [id])
 
   @@map("paiements")
 }
 
+//
+// NOTIFICATIONS
+//
+
 model Notification {
-  id        String   @id @default(uuid())
-  userId    String   @map("user_id")
-  type      String
-  titre     String
-  contenu   String   @db.Text
-  lu        Boolean  @default(false)
+  id String @id @default(uuid())
+
+  userId String @map("user_id")
+
+  type String
+
+  titre String
+
+  contenu String @db.Text
+
+  lu Boolean @default(false)
+
   createdAt DateTime @default(now()) @map("created_at")
 
-  user      User     @relation(fields: [userId], references: [id])
+  //
+  // RELATIONS
+  //
+
+  user User @relation(fields: [userId], references: [id])
 
   @@map("notifications")
 }
 
-model Message {
-  id              String      @id @default(uuid())
-  candidatureId   String      @map("candidature_id")
-  senderId        String      @map("sender_id")
-  senderRole      UserRole    @map("sender_role")
-  contenu         String      @db.Text
-  lu              Boolean     @default(false)
-  createdAt       DateTime    @default(now()) @map("created_at")
+//
+// MESSAGES
+//
 
-  candidature     Candidature @relation(fields: [candidatureId], references: [id])
-  sender          User        @relation("sender", fields: [senderId], references: [id])
+model Message {
+  id String @id @default(uuid())
+
+  candidatureId String @map("candidature_id")
+
+  senderId String @map("sender_id")
+
+  senderRole UserRole @map("sender_role")
+
+  contenu String @db.Text
+
+  lu Boolean @default(false)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  //
+  // RELATIONS
+  //
+
+  candidature Candidature @relation(fields: [candidatureId], references: [id])
+
+  sender User @relation("sender", fields: [senderId], references: [id])
 
   @@map("messages")
 }
 
-model Resultat {
-  id              String   @id @default(uuid())
-  concoursId      String   @map("concours_id")
-  candidatureId   String?  @map("candidature_id")
-  numeroDossier   String   @map("numero_dossier")
-  nomComplet      String   @map("nom_complet")
-  statutFinal     String   @map("statut_final")
-  note            Decimal? @db.Decimal(5,2)
-  rang            Int?
-  publishedAt     DateTime? @map("published_at")
-  createdAt       DateTime @default(now()) @map("created_at")
+//
+// RESULTATS
+//
 
-  concours        Concours @relation(fields: [concoursId], references: [id])
+model Resultat {
+  id String @id @default(uuid())
+
+  concoursId String @map("concours_id")
+
+  candidatureId String? @map("candidature_id")
+
+  numeroDossier String @map("numero_dossier")
+
+  nomComplet String @map("nom_complet")
+
+  statutFinal String @map("statut_final")
+
+  note Decimal? @db.Decimal(5, 2)
+
+  rang Int?
+
+  publishedAt DateTime? @map("published_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  //
+  // RELATIONS
+  //
+
+  concours    Concours     @relation(fields: [concoursId], references: [id])
+  Candidature Candidature? @relation(fields: [candidatureId], references: [id])
 
   @@map("resultats")
 }
 
+//
+// AUDIT LOGS
+//
+
 model AuditLog {
-  id        String   @id @default(uuid())
-  userId    String   @map("user_id")
-  action    String
-  details   String?  @db.Text
-  ipAddress String?  @map("ip_address")
+  id String @id @default(uuid())
+
+  userId String @map("user_id")
+
+  action String
+
+  details String? @db.Text
+
+  ipAddress String? @map("ip_address")
+
   createdAt DateTime @default(now()) @map("created_at")
 
-  user      User     @relation(fields: [userId], references: [id])
+  //
+  // RELATIONS
+  //
+
+  user User @relation(fields: [userId], references: [id])
 
   @@map("audit_logs")
 }

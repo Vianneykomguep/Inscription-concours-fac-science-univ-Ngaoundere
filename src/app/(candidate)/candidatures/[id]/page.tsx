@@ -13,6 +13,7 @@ export default async function CandidatureDetailPage({ params }: { params: { id: 
     where: { id: params.id },
     include: {
       concours: true, documents: true, paiements: true,
+      uploadedDocuments: true,
       messages: { include: { sender: { select: { firstName: true, lastName: true, role: true } } }, orderBy: { createdAt: 'asc' } },
     },
   })
@@ -88,6 +89,20 @@ export default async function CandidatureDetailPage({ params }: { params: { id: 
                     </div>
                   </div>
                   <a href={doc.url} target="_blank" className="text-primary-600 hover:underline text-sm flex items-center gap-1">
+                    <Download className="h-4 w-4" /> Voir
+                  </a>
+                </div>
+              ))}
+              {candidature.uploadedDocuments.map(doc => (
+                <div key={doc.id} className="flex items-center justify-between rounded-lg border border-gray-200 p-3">
+                  <div className="flex items-center gap-3">
+                    <FileText className="h-5 w-5 text-gray-400" />
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{doc.type}</p>
+                      <p className="text-xs text-gray-500">{doc.verified ? 'Vérifié' : 'En attente de vérification'}</p>
+                    </div>
+                  </div>
+                  <a href={doc.fileUrl} target="_blank" className="text-primary-600 hover:underline text-sm flex items-center gap-1">
                     <Download className="h-4 w-4" /> Voir
                   </a>
                 </div>

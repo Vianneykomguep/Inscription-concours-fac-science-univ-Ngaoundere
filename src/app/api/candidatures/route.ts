@@ -39,8 +39,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Les inscriptions sont clôturées' }, { status: 400 })
     }
 
-    const existing = await prisma.candidature.findUnique({
-      where: { userId_concoursId: { userId: user.id, concoursId } },
+    const existing = await prisma.candidature.findFirst({
+      where: { userId: user.id, concoursId },
     })
     if (existing) {
       return NextResponse.json({ error: 'Vous avez déjà une candidature pour ce concours', candidatureId: existing.id }, { status: 409 })
@@ -50,6 +50,10 @@ export async function POST(request: Request) {
       data: {
         userId: user.id,
         concoursId,
+        type: concours.type,
+        filiere: '',
+        centre: '',
+        informations: {},
         numeroDossier: generateNumeroDossier(),
       },
     })

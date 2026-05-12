@@ -40,8 +40,12 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     const updateData: any = {}
 
     if (data.titre !== undefined) updateData.titre = data.titre
+    if (data.type !== undefined) updateData.type = data.type
     if (data.description !== undefined) updateData.description = data.description
     if (data.departement !== undefined) updateData.departement = data.departement
+    if (data.filieres !== undefined) updateData.filieres = data.filieres
+    if (data.centres !== undefined) updateData.centres = data.centres
+    if (data.piecesRequises !== undefined) updateData.piecesRequises = data.piecesRequises
     if (data.nombrePlaces !== undefined) updateData.nombrePlaces = Number(data.nombrePlaces)
     if (data.fraisInscription !== undefined) updateData.fraisInscription = Number(data.fraisInscription)
     if (data.dateOuverture !== undefined) updateData.dateOuverture = new Date(data.dateOuverture)
@@ -50,10 +54,25 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     if (data.dateResultats !== undefined) updateData.dateResultats = data.dateResultats ? new Date(data.dateResultats) : null
     if (data.conditionsAdmission !== undefined) updateData.conditionsAdmission = data.conditionsAdmission || null
     if (data.guideUrl !== undefined) updateData.guideUrl = data.guideUrl || null
+    if (data.isActive !== undefined) updateData.isActive = data.isActive
 
     const concours = await prisma.concours.update({
       where: { id: params.id },
-      data: updateData,
+      data: {
+        ...updateData,
+        ...(data.piecesRequises !== undefined
+          ? {
+              documentsRequis: {
+                deleteMany: {},
+                create: data.piecesRequises.map((piece, index) => ({
+                  nom: piece,
+                  ordre: index,
+                  obligatoire: true,
+                })),
+              },
+            }
+          : {}),
+      },
     })
 
     return NextResponse.json(concours)
@@ -90,4 +109,3 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
 }
-

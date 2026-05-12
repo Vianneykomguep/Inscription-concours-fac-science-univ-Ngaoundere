@@ -8,7 +8,7 @@ import AdminStatusActions from '@/components/admin/AdminStatusActions'
 export default async function AdminCandidatureDetail({ params }: { params: { id: string } }) {
   const c = await prisma.candidature.findUnique({
     where: { id: params.id },
-    include: { concours: true, user: { select: { email: true, firstName: true, lastName: true, phone: true } }, documents: true, paiements: true },
+    include: { concours: true, user: { select: { email: true, firstName: true, lastName: true, phone: true } }, documents: true, uploadedDocuments: true, paiements: true },
   })
   if (!c) notFound()
   return (
@@ -30,12 +30,18 @@ export default async function AdminCandidatureDetail({ params }: { params: { id:
             </div>
           </div>
           <div className="rounded-xl border bg-white p-6">
-            <h3 className="font-semibold mb-3">Documents ({c.documents.length})</h3>
+            <h3 className="font-semibold mb-3">Documents ({c.documents.length + c.uploadedDocuments.length})</h3>
             <div className="space-y-2">
               {c.documents.map(doc => (
                 <div key={doc.id} className="flex items-center justify-between border rounded-lg p-3">
                   <div className="flex items-center gap-2"><FileText className="h-4 w-4 text-gray-400" /><span className="text-sm">{doc.nomFichier}</span><span className="text-xs text-gray-400">({doc.type})</span></div>
                   <a href={doc.url} target="_blank" className="text-blue-600 text-sm flex items-center gap-1"><Download className="h-3 w-3" />Ouvrir</a>
+                </div>
+              ))}
+              {c.uploadedDocuments.map(doc => (
+                <div key={doc.id} className="flex items-center justify-between border rounded-lg p-3">
+                  <div className="flex items-center gap-2"><FileText className="h-4 w-4 text-gray-400" /><span className="text-sm">{doc.type}</span><span className="text-xs text-gray-400">{doc.verified ? '(vérifié)' : '(en attente)'}</span></div>
+                  <a href={doc.fileUrl} target="_blank" className="text-blue-600 text-sm flex items-center gap-1"><Download className="h-3 w-3" />Ouvrir</a>
                 </div>
               ))}
             </div>

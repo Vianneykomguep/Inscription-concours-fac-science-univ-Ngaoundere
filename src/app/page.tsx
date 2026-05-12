@@ -5,6 +5,7 @@ import { getCurrentUser } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { GraduationCap, FileCheck, Users, Shield, ArrowRight, Calendar, MapPin } from 'lucide-react'
 import { formatDate, formatCurrency } from '@/lib/utils'
+import { getConcoursApplyPath, getConcoursDetailPath } from '@/lib/concours-links'
 
 export default async function HomePage() {
   const user = await getCurrentUser()
@@ -88,9 +89,14 @@ export default async function HomePage() {
                     <div className="flex items-center gap-2"><Calendar className="h-4 w-4" />Clôture: {formatDate(c.dateCloture)}</div>
                     <div className="flex items-center gap-2"><Users className="h-4 w-4" />{c.nombrePlaces} places</div>
                   </div>
-                  <Link href={`/concours/${c.id}`} className="btn-primary w-full text-center">
-                    Voir les détails
-                  </Link>
+                  <div className="flex gap-3">
+                    <Link href={getConcoursDetailPath(c.id)} className="btn-secondary flex-1 text-center">
+                      Détails
+                    </Link>
+                    <Link href={getConcoursApplyPath(c.type, c.id)} className="btn-primary flex-1 text-center">
+                      Postuler
+                    </Link>
+                  </div>
                 </div>
               ))}
             </div>
