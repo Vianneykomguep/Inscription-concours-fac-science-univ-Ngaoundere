@@ -26,7 +26,14 @@ export default async function AdminCandidaturesPage() {
                 <td className="px-4 py-3 font-mono text-xs">{c.numeroDossier}</td>
                 <td className="px-4 py-3">{c.user.firstName} {c.user.lastName}</td>
                 <td className="px-4 py-3">{c.concours.titre}</td>
-                <td className="px-4 py-3"><span className={CANDIDATURE_STATUT_COLORS[c.statut]}>{CANDIDATURE_STATUT_LABELS[c.statut]}</span></td>
+                <td className="px-4 py-3">
+                  <div className="flex flex-wrap gap-2">
+                    <span className={CANDIDATURE_STATUT_COLORS[c.statut]}>{CANDIDATURE_STATUT_LABELS[c.statut]}</span>
+                    {c.statut === 'SOUMISE' && c.commentaireAdmin?.includes('Complément fourni') && (
+                      <span className="badge-warning">Complément reçu</span>
+                    )}
+                  </div>
+                </td>
                 <td className="px-4 py-3 text-gray-500">{formatDate(c.createdAt)}</td>
                 <td className="px-4 py-3"><Link href={`/admin/candidatures/${c.id}`} className="text-blue-600 hover:underline">Examiner</Link></td>
               </tr>

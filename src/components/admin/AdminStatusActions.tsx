@@ -32,6 +32,26 @@ export default function AdminStatusActions({
   const [complement, setComplement] =
     useState('')
 
+  const canReview = hasPermission(
+    { role: userRole },
+    Permission.REVIEW_CANDIDATURE
+  )
+
+  const canRequestComplement = hasPermission(
+    { role: userRole },
+    Permission.REQUEST_COMPLEMENT
+  )
+
+  const canValidate = hasPermission(
+    { role: userRole },
+    Permission.VALIDATE_CANDIDATURE
+  )
+
+  const canPublishResults = hasPermission(
+    { role: userRole },
+    Permission.PUBLISH_RESULTS
+  )
+
   const updateStatus = async (
     statut: string
   ) => {
@@ -85,16 +105,19 @@ export default function AdminStatusActions({
         Actions
       </h3>
 
+      {!canValidate && (
+        <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 text-xs text-blue-800">
+          Votre rôle permet l'examen du dossier et la demande de complément. La validation, le rejet et les résultats nécessitent un niveau responsable.
+        </div>
+      )}
+
       {['SOUMISE', 'EN_COURS_EXAMEN']
         .includes(currentStatut) && (
         <>
 
           {/* REVIEW */}
           {
-            hasPermission(
-              { role: userRole },
-              Permission.REVIEW_CANDIDATURE
-            ) && (
+            canReview && (
               <button
                 onClick={() =>
                   updateStatus(
@@ -116,28 +139,27 @@ export default function AdminStatusActions({
 
           {/* VALIDATE */}
           {
-            hasPermission(
-              { role: userRole },
-              Permission.VALIDATE_CANDIDATURE
-            ) && (
-              <button
-                onClick={() =>
-                  updateStatus('VALIDEE')
-                }
+            canValidate && (
+              <div>
+                <div className="mb-2 flex justify-end">
+                  <span className="badge-info">Niveau responsable</span>
+                </div>
+                <button
+                  onClick={() =>
+                    updateStatus('VALIDEE')
+                  }
 
-                className="btn-success w-full"
-              >
-                Valider le dossier
-              </button>
+                  className="btn-success w-full"
+                >
+                  Valider le dossier
+                </button>
+              </div>
             )
           }
 
           {/* COMPLEMENT */}
           {
-            hasPermission(
-              { role: userRole },
-              Permission.REQUEST_COMPLEMENT
-            ) && (
+            canRequestComplement && (
               <div>
 
                 <label className="label-field">
@@ -178,15 +200,15 @@ export default function AdminStatusActions({
 
           {/* REJECT */}
           {
-            hasPermission(
-              { role: userRole },
-              Permission.VALIDATE_CANDIDATURE
-            ) && (
+            canValidate && (
               <div>
 
-                <label className="label-field">
-                  Motif de rejet
-                </label>
+                <div className="mb-1 flex items-center justify-between gap-3">
+                  <label className="label-field mb-0">
+                    Motif de rejet
+                  </label>
+                  <span className="badge-info">Niveau responsable</span>
+                </div>
 
                 <textarea
                   className="input-field"
@@ -224,11 +246,11 @@ export default function AdminStatusActions({
       {currentStatut === 'VALIDEE' && (
         <>
           {
-            hasPermission(
-              { role: userRole },
-              Permission.PUBLISH_RESULTS
-            ) && (
+            canPublishResults && (
               <>
+                <div className="flex justify-end">
+                  <span className="badge-info">Niveau responsable</span>
+                </div>
                 <button
                   onClick={() =>
                     updateStatus(
@@ -261,11 +283,11 @@ export default function AdminStatusActions({
       {currentStatut === 'ADMISSIBLE' && (
         <>
           {
-            hasPermission(
-              { role: userRole },
-              Permission.PUBLISH_RESULTS
-            ) && (
+            canPublishResults && (
               <>
+                <div className="flex justify-end">
+                  <span className="badge-info">Niveau responsable</span>
+                </div>
                 <button
                   onClick={() =>
                     updateStatus('ADMIS')

@@ -2,6 +2,8 @@ import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
 import { formatDate } from '@/lib/utils'
 import ConcoursRowActions from '@/components/admin/ConcoursRowActions'
+import { getCurrentUser } from '@/lib/auth'
+import { Permission, hasPermission } from '@/lib/permissions'
 
 const STATUS_BADGES: Record<string, string> = {
   BROUILLON: 'badge-gray',
@@ -12,10 +14,15 @@ const STATUS_BADGES: Record<string, string> = {
 }
 
 export default async function AdminConcoursPage() {
+  const user = await getCurrentUser()
+  if (!user) return null
+
   const concours = await prisma.concours.findMany({
     include: { _count: { select: { candidatures: true } } },
     orderBy: { createdAt: 'desc' },
   })
+
+  const canCreateConcours = hasPermission({ role: user.role }, Permission.CREATE_CONCOURS)
 
   return (
     <div>
@@ -24,9 +31,19 @@ export default async function AdminConcoursPage() {
           <h1 className="text-2xl font-bold text-gray-900">Concours</h1>
           <p className="mt-1 text-sm text-gray-600">Créez, modifiez et activez les concours STAB publiés sur la plateforme.</p>
         </div>
-        <Link href="/admin/concours/new" className="btn-primary w-full text-center md:w-auto">
-          Créer un concours
-        </Link>
+
+        {canCreateConcours ? (
+          <div className="flex flex-col items-stretch gap-2 md:items-end">
+            <span className="badge-info self-start md:self-end">Niveau responsable</span>
+            <Link href="/admin/concours/new" className="btn-primary w-full text-center md:w-auto">
+              Créer un concours
+            </Link>
+          </div>
+        ) : (
+          <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
+            La création de concours nécessite un niveau responsable.
+          </div>
+        )}
       </div>
 
       <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
@@ -63,7 +80,7 @@ export default async function AdminConcoursPage() {
                   <span className={item.isActive ? 'badge-success' : 'badge-gray'}>{item.isActive ? 'Oui' : 'Non'}</span>
                 </td>
                 <td className="px-4 py-4">
-                  <ConcoursRowActions id={item.id} titre={item.titre} statut={item.statut} />
+                  <ConcoursRowActions id={item.id} titre={item.titre} statut={item.statut} userRole={user.role} />
                 </td>
               </tr>
             ))}

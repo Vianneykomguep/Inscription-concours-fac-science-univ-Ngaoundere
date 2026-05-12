@@ -3,8 +3,12 @@ import Link from 'next/link'
 import { formatDate, formatCurrency } from '@/lib/utils'
 import { Calendar, MapPin, Users, FileText } from 'lucide-react'
 import ConcoursActions from '@/components/admin/ConcoursActions'
+import { getCurrentUser } from '@/lib/auth'
 
 export default async function ConcoursDetailPage({ params }: { params: { id: string } }) {
+  const user = await getCurrentUser()
+  if (!user) return null
+
   const concours = await prisma.concours.findUnique({
     where: { id: params.id },
     include: {
@@ -96,8 +100,11 @@ export default async function ConcoursDetailPage({ params }: { params: { id: str
       </div>
 
       <div className="mt-6 rounded-xl border border-gray-200 bg-white p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Actions</h2>
-        <ConcoursActions concoursId={concours.id} currentStatus={concours.statut} />
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <h2 className="text-lg font-semibold text-gray-900">Actions</h2>
+          <span className="badge-info">Niveau responsable requis</span>
+        </div>
+        <ConcoursActions concoursId={concours.id} currentStatus={concours.statut} userRole={user.role} />
       </div>
     </div>
   )
