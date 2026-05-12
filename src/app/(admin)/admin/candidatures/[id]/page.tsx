@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { ArrowLeft, FileText, Download } from 'lucide-react'
 import { formatDate, CANDIDATURE_STATUT_LABELS, CANDIDATURE_STATUT_COLORS } from '@/lib/utils'
 import AdminStatusActions from '@/components/admin/AdminStatusActions'
+import { getCurrentUser } from '@/lib/auth'
 
 export default async function AdminCandidatureDetail({ params }: { params: { id: string } }) {
   const c = await prisma.candidature.findUnique({
@@ -11,6 +12,9 @@ export default async function AdminCandidatureDetail({ params }: { params: { id:
     include: { concours: true, user: { select: { email: true, firstName: true, lastName: true, phone: true } }, documents: true, uploadedDocuments: true, paiements: true },
   })
   if (!c) notFound()
+    const user = await getCurrentUser()
+
+if (!user) notFound()
   return (
     <div>
       <Link href="/admin/candidatures" className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 mb-6"><ArrowLeft className="h-4 w-4" /> Retour</Link>
@@ -47,7 +51,7 @@ export default async function AdminCandidatureDetail({ params }: { params: { id:
             </div>
           </div>
         </div>
-        <AdminStatusActions candidatureId={c.id} currentStatut={c.statut} />
+        <AdminStatusActions candidatureId={c.id} currentStatut={c.statut} userRole={user.role} />
       </div>
     </div>
   )

@@ -48,6 +48,16 @@ export default async function CandidatureDetailPage({ params }: { params: { id: 
           <p className="text-sm text-yellow-700 mt-1">{candidature.complementInfo}</p>
         </div>
       )}
+      {candidature.statut === 'COMPLEMENT_DEMANDE' && (
+  <div className="mb-6">
+    <Link
+      href={`/candidatures/${candidature.id}/edit`}
+      className="btn-primary inline-flex"
+    >
+      Modifier ma candidature
+    </Link>
+  </div>
+)}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
