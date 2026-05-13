@@ -5,10 +5,19 @@ import { ArrowLeft, Download, FileText, MessageSquare } from 'lucide-react'
 import { formatDate, formatDateTime, CANDIDATURE_STATUT_LABELS, CANDIDATURE_STATUT_COLORS } from '@/lib/utils'
 import AdminStatusActions from '@/components/admin/AdminStatusActions'
 import { getCurrentUser } from '@/lib/auth'
+import { Permission, hasPermission } from '@/lib/permissions'
+import AdminPermissionNotice from '@/components/admin/AdminPermissionNotice'
 
 export default async function AdminCandidatureDetail({ params }: { params: { id: string } }) {
   const user = await getCurrentUser()
   if (!user) notFound()
+  if (!hasPermission(user, Permission.VIEW_CANDIDATURES)) {
+    return (
+      <AdminPermissionNotice title="Consultation de candidature réservée">
+        Vous n'avez pas la permission de consulter cette candidature.
+      </AdminPermissionNotice>
+    )
+  }
 
   const candidature = await prisma.candidature.findUnique({
     where: { id: params.id },

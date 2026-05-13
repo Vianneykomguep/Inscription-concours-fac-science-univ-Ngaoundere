@@ -6,6 +6,7 @@ import { prisma } from '@/lib/prisma'
 import { GraduationCap, FileCheck, Users, Shield, ArrowRight, Calendar, MapPin } from 'lucide-react'
 import { formatDate, formatCurrency } from '@/lib/utils'
 import { getConcoursApplyPath, getConcoursDetailPath } from '@/lib/concours-links'
+import { canAccessAdmin } from '@/lib/permissions'
 
 export default async function HomePage() {
   const user = await getCurrentUser()
@@ -19,33 +20,230 @@ export default async function HomePage() {
     <div className="min-h-screen flex flex-col">
       <Header user={user} />
       
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-uni-green via-green-800 to-green-900">
-        <div className="absolute inset-0 bg-[url('/images/pattern.svg')] opacity-10" />
-        <div className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
-          <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-sm text-uni-gold backdrop-blur mb-6">
-              <GraduationCap className="h-4 w-4" />
-              Université de Ngaoundéré — Faculté des Sciences
-            </div>
+      {/* HERO */}
+
+<section className="relative overflow-hidden bg-gradient-to-br from-uni-green via-green-800 to-green-900">
+
+  <div className="absolute inset-0 bg-[url('/images/pattern.svg')] opacity-10" />
+
+  <div className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
+
+    <div className="max-w-3xl">
+
+      <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-sm text-uni-gold backdrop-blur">
+
+        <GraduationCap className="h-4 w-4" />
+
+        Université de Ngaoundéré — Faculté des Sciences
+
+      </div>
+
+      {/* UTILISATEUR NON CONNECTÉ */}
+
+      {!user && (
+
+        <>
+
+          <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
+
+            Inscrivez-vous aux{' '}
+
+            <span className="text-uni-gold">
+              concours
+            </span>{' '}
+
+            en ligne
+
+          </h1>
+
+          <p className="mt-6 max-w-2xl text-lg text-green-100">
+
+            Plateforme officielle d&apos;inscription en ligne aux concours d&apos;entrée de la Faculté des Sciences.
+
+            Simple, rapide et sécurisé.
+
+          </p>
+
+          <div className="mt-8 flex flex-wrap gap-4">
+
+            <Link
+              href="/auth/register"
+
+              className="
+                inline-flex items-center gap-2
+                rounded-xl bg-uni-gold
+                px-6 py-3 text-sm
+                font-semibold text-uni-dark
+                shadow-lg transition-all
+                hover:bg-yellow-500
+              "
+            >
+              Créer un compte
+
+              <ArrowRight className="h-4 w-4" />
+
+            </Link>
+
+            <Link
+              href="/concours"
+
+              className="
+                inline-flex items-center gap-2
+                rounded-xl border border-white/30
+                bg-white/10 px-6 py-3
+                text-sm font-semibold text-white
+                backdrop-blur transition-all
+                hover:bg-white/20
+              "
+            >
+              Voir les concours
+            </Link>
+
+          </div>
+
+        </>
+
+      )}
+
+      {/* CANDIDAT CONNECTÉ */}
+
+      {
+        user &&
+        user.role === 'CANDIDAT' && (
+
+          <>
+
             <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
-              Inscrivez-vous aux <span className="text-uni-gold">concours</span> en ligne
+
+              Bonjour{' '}
+
+              <span className="text-uni-gold">
+                {user.firstName}
+              </span>
+
             </h1>
-            <p className="mt-6 text-lg text-green-100 max-w-2xl">
-              Plateforme officielle d&apos;inscription en ligne aux concours d&apos;entrée de la Faculté des Sciences. 
-              Simple, rapide et sécurisé.
+
+            <p className="mt-6 max-w-2xl text-lg text-green-100">
+
+              Suivez vos candidatures, consultez vos notifications
+              et complétez vos dossiers directement en ligne.
+
             </p>
+
             <div className="mt-8 flex flex-wrap gap-4">
-              <Link href="/auth/register" className="inline-flex items-center gap-2 rounded-lg bg-uni-gold px-6 py-3 text-sm font-semibold text-uni-dark shadow-lg transition-all hover:bg-yellow-500">
-                Créer un compte <ArrowRight className="h-4 w-4" />
+
+              <Link
+                href="/dashboard"
+
+                className="
+                  inline-flex items-center gap-2
+                  rounded-xl bg-uni-gold
+                  px-6 py-3 text-sm
+                  font-semibold text-uni-dark
+                  shadow-lg transition-all
+                  hover:bg-yellow-500
+                "
+              >
+                Mon espace candidat
+
+                <ArrowRight className="h-4 w-4" />
+
               </Link>
-              <Link href="/concours" className="inline-flex items-center gap-2 rounded-lg border border-white/30 bg-white/10 px-6 py-3 text-sm font-semibold text-white backdrop-blur transition-all hover:bg-white/20">
+
+              <Link
+                href="/concours"
+
+                className="
+                  inline-flex items-center gap-2
+                  rounded-xl border border-white/30
+                  bg-white/10 px-6 py-3
+                  text-sm font-semibold text-white
+                  backdrop-blur transition-all
+                  hover:bg-white/20
+                "
+              >
                 Voir les concours
               </Link>
+
             </div>
-          </div>
-        </div>
-      </section>
+
+          </>
+
+        )
+      }
+
+      {/* ADMIN CONNECTÉ */}
+
+      {
+        user &&
+        canAccessAdmin(user) && (
+
+          <>
+
+            <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
+
+              Espace{' '}
+
+              <span className="text-uni-gold">
+                Administration
+              </span>
+
+            </h1>
+
+            <p className="mt-6 max-w-2xl text-lg text-green-100">
+
+              Gérez les candidatures, les concours et les résultats
+              depuis votre tableau de bord sécurisé.
+
+            </p>
+
+            <div className="mt-8 flex flex-wrap gap-4">
+
+              <Link
+                href="/admin/dashboard"
+
+                className="
+                  inline-flex items-center gap-2
+                  rounded-xl bg-uni-gold
+                  px-6 py-3 text-sm
+                  font-semibold text-uni-dark
+                  shadow-lg transition-all
+                  hover:bg-yellow-500
+                "
+              >
+                Tableau de bord
+
+                <ArrowRight className="h-4 w-4" />
+
+              </Link>
+
+              <Link
+                href="/admin/candidatures"
+
+                className="
+                  inline-flex items-center gap-2
+                  rounded-xl border border-white/30
+                  bg-white/10 px-6 py-3
+                  text-sm font-semibold text-white
+                  backdrop-blur transition-all
+                  hover:bg-white/20
+                "
+              >
+                Voir les candidatures
+              </Link>
+
+            </div>
+
+          </>
+
+        )
+      }
+
+    </div>
+
+  </div>
+
+</section>
 
       {/* Stats */}
       <section className="border-b border-gray-200 bg-white">

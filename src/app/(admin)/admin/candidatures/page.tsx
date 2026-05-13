@@ -1,8 +1,20 @@
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
 import { formatDate, CANDIDATURE_STATUT_LABELS, CANDIDATURE_STATUT_COLORS } from '@/lib/utils'
+import { getCurrentUser } from '@/lib/auth'
+import { Permission, hasPermission } from '@/lib/permissions'
+import AdminPermissionNotice from '@/components/admin/AdminPermissionNotice'
 
 export default async function AdminCandidaturesPage() {
+  const user = await getCurrentUser()
+  if (!user || !hasPermission(user, Permission.VIEW_CANDIDATURES)) {
+    return (
+      <AdminPermissionNotice title="Consultation des candidatures réservée">
+        Vous n'avez pas la permission de consulter les candidatures.
+      </AdminPermissionNotice>
+    )
+  }
+
   const candidatures = await prisma.candidature.findMany({
     include: { concours: { select: { titre: true } }, user: { select: { email: true, firstName: true, lastName: true } } },
     orderBy: { createdAt: 'desc' }, take: 100,

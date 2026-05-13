@@ -1,14 +1,20 @@
 'use client'
+import UserMenu from '../forms/common/UserMenu'
 import Link from 'next/link'
 import { useState } from 'react'
+import type { UserRole } from '@prisma/client'
 import { Menu, X, GraduationCap, User, LogOut, Bell } from 'lucide-react'
+import { canAccessAdmin } from '@/lib/permissions'
 
 interface HeaderProps {
-  user?: { firstName: string; lastName: string; role: string } | null
+  user?: { firstName: string; lastName: string; role: UserRole } | null
 }
 
 export default function Header({ user }: HeaderProps) {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const isAdminUser = user ? canAccessAdmin(user) : false
+  const dashboardHref = isAdminUser ? '/admin/dashboard' : '/dashboard'
+  const dashboardLabel = isAdminUser ? 'Administration' : 'Mon Espace'
 
   return (
     <header className="sticky top-0 z-50 border-b border-gray-200 bg-white/95 backdrop-blur">
@@ -29,22 +35,11 @@ export default function Header({ user }: HeaderProps) {
             <Link href="/concours" className="text-sm font-medium text-gray-600 hover:text-uni-green transition-colors">Concours</Link>
             {user ? (
               <>
-                {user.role === 'CANDIDAT' ? (
-                  <Link href="/dashboard" className="text-sm font-medium text-gray-600 hover:text-uni-green transition-colors">Mon Espace</Link>
-                ) : (
-                  <Link href="/admin/dashboard" className="text-sm font-medium text-gray-600 hover:text-uni-green transition-colors">Administration</Link>
-                )}
+                <Link href={dashboardHref} className="text-sm font-medium text-gray-600 hover:text-uni-green transition-colors">{dashboardLabel}</Link>
                 <Link href="/notifications" className="relative text-gray-600 hover:text-uni-green">
                   <Bell className="h-5 w-5" />
                 </Link>
-                <div className="flex items-center gap-2 rounded-full bg-gray-100 py-1.5 pl-3 pr-1.5">
-                  <span className="text-sm font-medium text-gray-700">{user.firstName} {user.lastName}</span>
-                  <form action="/api/auth/logout" method="POST">
-                    <button type="submit" className="rounded-full bg-white p-1.5 text-gray-500 hover:text-danger-600 transition-colors">
-                      <LogOut className="h-4 w-4" />
-                    </button>
-                  </form>
-                </div>
+                <UserMenu user={user} />
               </>
             ) : (
               <div className="flex items-center gap-3">
@@ -67,8 +62,8 @@ export default function Header({ user }: HeaderProps) {
             <Link href="/concours" className="text-sm font-medium text-gray-700 py-2" onClick={() => setMobileOpen(false)}>Concours</Link>
             {user ? (
               <>
-                <Link href={user.role === 'CANDIDAT' ? '/dashboard' : '/admin/dashboard'} className="text-sm font-medium text-gray-700 py-2" onClick={() => setMobileOpen(false)}>
-                  {user.role === 'CANDIDAT' ? 'Mon Espace' : 'Administration'}
+                <Link href={dashboardHref} className="text-sm font-medium text-gray-700 py-2" onClick={() => setMobileOpen(false)}>
+                  {dashboardLabel}
                 </Link>
                 <form action="/api/auth/logout" method="POST">
                   <button type="submit" className="text-sm font-medium text-danger-600 py-2">Déconnexion</button>

@@ -4,6 +4,7 @@ import { formatDate } from '@/lib/utils'
 import ConcoursRowActions from '@/components/admin/ConcoursRowActions'
 import { getCurrentUser } from '@/lib/auth'
 import { Permission, hasPermission } from '@/lib/permissions'
+import AdminPermissionNotice from '@/components/admin/AdminPermissionNotice'
 
 const STATUS_BADGES: Record<string, string> = {
   BROUILLON: 'badge-gray',
@@ -16,6 +17,13 @@ const STATUS_BADGES: Record<string, string> = {
 export default async function AdminConcoursPage() {
   const user = await getCurrentUser()
   if (!user) return null
+  if (!hasPermission(user, Permission.UPDATE_CONCOURS)) {
+    return (
+      <AdminPermissionNotice title="Gestion des concours réservée" badge="Niveau responsable">
+        Cette section nécessite le rôle Responsable ou Super Admin.
+      </AdminPermissionNotice>
+    )
+  }
 
   const concours = await prisma.concours.findMany({
     include: { _count: { select: { candidatures: true } } },

@@ -46,11 +46,37 @@ export const rolePermissions: Record<
     Object.values(Permission) as Permission[],
 }
 
+export const ADMIN_ACCESS_PERMISSIONS = [
+  Permission.VIEW_CANDIDATURES,
+  Permission.CREATE_CONCOURS,
+  Permission.UPDATE_CONCOURS,
+  Permission.DELETE_CONCOURS,
+  Permission.MANAGE_USERS,
+] as const
+
+export function hasAnyPermission(
+  user: { role: UserRole },
+  permissions: readonly Permission[]
+) {
+  return permissions.some((permission) =>
+    hasPermission(user, permission)
+  )
+}
+
 export function hasPermission(
   user: { role: UserRole },
   permission: Permission
 ) {
   return rolePermissions[user.role].includes(permission)
+}
+
+export function canAccessAdmin(
+  user: { role: UserRole }
+) {
+  return hasAnyPermission(
+    user,
+    ADMIN_ACCESS_PERMISSIONS
+  )
 }
 
 export function requirePermission(

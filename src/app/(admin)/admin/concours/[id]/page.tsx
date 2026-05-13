@@ -4,10 +4,19 @@ import { formatDate, formatCurrency } from '@/lib/utils'
 import { Calendar, MapPin, Users, FileText } from 'lucide-react'
 import ConcoursActions from '@/components/admin/ConcoursActions'
 import { getCurrentUser } from '@/lib/auth'
+import { Permission, hasPermission } from '@/lib/permissions'
+import AdminPermissionNotice from '@/components/admin/AdminPermissionNotice'
 
 export default async function ConcoursDetailPage({ params }: { params: { id: string } }) {
   const user = await getCurrentUser()
   if (!user) return null
+  if (!hasPermission(user, Permission.UPDATE_CONCOURS)) {
+    return (
+      <AdminPermissionNotice title="Détail concours réservé" badge="Niveau responsable">
+        Cette section nécessite le rôle Responsable ou Super Admin.
+      </AdminPermissionNotice>
+    )
+  }
 
   const concours = await prisma.concours.findUnique({
     where: { id: params.id },

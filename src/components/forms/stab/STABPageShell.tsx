@@ -2,11 +2,12 @@ import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import type { StabFormConfig } from '@/lib/stab-config'
 import type React from 'react'
+import type { UserRole } from '@prisma/client'
 import Link from 'next/link'
 import { ArrowLeft, FileText, MapPin } from 'lucide-react'
 
 type Props = {
-  user: { firstName: string; lastName: string; role: string } | null
+  user: { firstName: string; lastName: string; role: UserRole } | null
   config: StabFormConfig
   children: React.ReactNode
 }
