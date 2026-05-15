@@ -24,7 +24,7 @@ export default function STABPageShell({ user, config, children }: Props) {
             </Link>
             <div className="grid gap-6 md:grid-cols-[1fr_280px] md:items-end">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-wide text-uni-green">Département STAB</p>
+                <p className="text-sm font-semibold uppercase tracking-wide text-uni-green">Departement {config.departement}</p>
                 <h1 className="mt-2 text-4xl font-bold text-gray-950">{config.title}</h1>
                 <p className="mt-3 text-gray-600">{config.subtitle}</p>
               </div>
@@ -35,7 +35,7 @@ export default function STABPageShell({ user, config, children }: Props) {
                 </div>
                 <div className="mt-2 flex items-center gap-2">
                   <FileText className="h-4 w-4 text-uni-green" />
-                  {config.documents.length} pièces demandées
+                  {config.documents.length} pieces demandees
                 </div>
               </div>
             </div>
@@ -45,7 +45,7 @@ export default function STABPageShell({ user, config, children }: Props) {
         <section className="mx-auto max-w-5xl px-4 py-10">
           {!user && (
             <div className="mb-6 rounded-lg border border-yellow-200 bg-yellow-50 p-4 text-sm text-yellow-900">
-              Connectez-vous avant de soumettre le formulaire. Vous pouvez préparer le dossier ici, mais l'envoi final nécessite un compte candidat.
+              Connectez-vous avant de soumettre le formulaire. Vous pouvez preparer le dossier ici, mais l'envoi final necessite un compte candidat.
               <Link href="/auth/login" className="ml-2 font-semibold underline">Connexion</Link>
             </div>
           )}

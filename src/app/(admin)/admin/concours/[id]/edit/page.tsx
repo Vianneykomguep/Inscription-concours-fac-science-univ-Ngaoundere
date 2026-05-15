@@ -5,7 +5,16 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState, useTransition } from 'react'
 import type { ConcoursType } from '@prisma/client'
 
-const TYPES: ConcoursType[] = ['STAB_L1', 'STAB_L3', 'STAB_MASTER', 'STAB_MASTER_PRO']
+const TYPES: ConcoursType[] = [
+  'STAB_L1',
+  'STAB_L3',
+  'STAB_MASTER',
+  'STAB_MASTER_PRO',
+  'BIOMED_L1',
+  'BIOMED_L3',
+  'BIOMED_MASTER',
+  'BIOMED_MASTER_PRO',
+]
 
 type FormState = {
   type: ConcoursType
@@ -142,7 +151,7 @@ export default function EditConcoursPage({ params }: { params: { id: string } })
       <form onSubmit={handleSubmit} className="space-y-6 rounded-xl border border-gray-200 bg-white p-6">
         <div className="grid gap-6 md:grid-cols-2">
           <div>
-            <label className="label-field">Type de concours</label>
+            <label className="label-field">Niveau du concours</label>
             <select className="input-field" value={form.type} onChange={(event) => updateField('type', event.target.value as ConcoursType)}>
               {TYPES.map((type) => <option key={type} value={type}>{type}</option>)}
             </select>

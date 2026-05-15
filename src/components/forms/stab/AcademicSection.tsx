@@ -11,28 +11,53 @@ type Props = {
 
 const FIELDS: Record<ConcoursType, { name: string; label: string; type?: string }[]> = {
   STAB_L1: [
-    { name: 'anneeProbatoire', label: 'Année obtention Probatoire', type: 'number' },
+    { name: 'anneeProbatoire', label: 'Annee obtention Probatoire', type: 'number' },
     { name: 'mentionProbatoire', label: 'Mention Probatoire' },
-    { name: 'anneeBac', label: 'Année obtention BAC', type: 'number' },
+    { name: 'anneeBac', label: 'Annee obtention BAC', type: 'number' },
     { name: 'mentionBac', label: 'Mention BAC' },
   ],
   STAB_L3: [
-    { name: 'diplomeAcces', label: "Diplôme d'accès" },
-    { name: 'etablissement', label: 'Établissement' },
-    { name: 'anneeObtention', label: "Année d'obtention", type: 'number' },
-    { name: 'mention', label: 'Mention' },
+    { name: 'anneeProbatoire', label: 'Annee obtention Probatoire ou GCE O/L', type: 'number' },
+    { name: 'mentionProbatoire', label: 'Mention Probatoire ou GCE O/L' },
+    { name: 'anneeBac', label: 'Annee obtention BAC ou GCE A/L', type: 'number' },
+    { name: 'mentionBac', label: 'Mention BAC ou GCE A/L' },
   ],
   STAB_MASTER: [
-    { name: 'licence', label: 'Licence obtenue' },
-    { name: 'etablissement', label: 'Établissement' },
-    { name: 'anneeObtention', label: "Année d'obtention", type: 'number' },
-    { name: 'mention', label: 'Mention' },
+    { name: 'anneeBac', label: 'Annee obtention BAC ou GCE A/L', type: 'number' },
+    { name: 'mentionBac', label: 'Mention BAC ou GCE A/L' },
+    { name: 'anneeLicence', label: 'Annee obtention Licence', type: 'number' },
+    { name: 'mentionLicence', label: 'Mention Licence' },
   ],
   STAB_MASTER_PRO: [
-    { name: 'licenceProfessionnelle', label: 'Licence professionnelle obtenue' },
-    { name: 'etablissement', label: 'Établissement' },
-    { name: 'anneeObtention', label: "Année d'obtention", type: 'number' },
+    { name: 'anneeBac', label: 'Annee obtention BAC ou GCE A/L', type: 'number' },
+    { name: 'mentionBac', label: 'Mention BAC ou GCE A/L' },
+    { name: 'anneeLicence', label: 'Annee obtention Licence', type: 'number' },
+    { name: 'mentionLicence', label: 'Mention Licence' },
+  ],
+  BIOMED_L1: [
+    { name: 'anneeProbatoire', label: 'Annee obtention Probatoire ou GCE O/L', type: 'number' },
+    { name: 'mentionProbatoire', label: 'Mention Probatoire ou GCE O/L' },
+    { name: 'anneeBac', label: 'Annee obtention Baccalaureat ou GCE A/L', type: 'number' },
+    { name: 'mentionBac', label: 'Mention Baccalaureat ou GCE A/L' },
+  ],
+  BIOMED_L3: [
+    { name: 'diplomeAcces', label: "Diplome d'acces en Licence 3 professionnelle" },
+    { name: 'etablissement', label: 'Etablissement' },
+    { name: 'anneeObtention', label: "Annee d'obtention", type: 'number' },
     { name: 'mention', label: 'Mention' },
+  ],
+  BIOMED_MASTER: [
+    { name: 'licence', label: 'Licence ou diplome equivalent' },
+    { name: 'etablissement', label: 'Etablissement' },
+    { name: 'anneeObtention', label: "Annee d'obtention", type: 'number' },
+    { name: 'mention', label: 'Mention' },
+  ],
+  BIOMED_MASTER_PRO: [
+    { name: 'licenceProfessionnelle', label: 'Licence professionnelle ou diplome equivalent' },
+    { name: 'etablissement', label: 'Etablissement' },
+    { name: 'anneeObtention', label: "Annee d'obtention", type: 'number' },
+    { name: 'mention', label: 'Mention' },
+    { name: 'experienceProfessionnelle', label: 'Stage ou experience professionnelle' },
   ],
 }
 
@@ -41,7 +66,7 @@ export default function AcademicSection({ type, data, onChange }: Props) {
 
   return (
     <section className="rounded-lg border border-gray-200 bg-white p-6">
-      <h2 className="mb-4 text-xl font-semibold text-gray-900">Informations académiques</h2>
+      <h2 className="mb-4 text-xl font-semibold text-gray-900">Informations academiques</h2>
       <div className="grid gap-4 md:grid-cols-2">
         {FIELDS[type].map((field) => (
           <div key={field.name}>
