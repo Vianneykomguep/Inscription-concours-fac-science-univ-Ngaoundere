@@ -6,7 +6,16 @@ import { useEffect, useState, useTransition } from 'react'
 import type { ConcoursType } from '@prisma/client'
 import { STAB_FORM_CONFIGS } from '@/lib/stab-config'
 
-const TYPES: ConcoursType[] = ['STAB_L1', 'STAB_L3', 'STAB_MASTER', 'STAB_MASTER_PRO']
+const TYPES: ConcoursType[] = [
+  'STAB_L1',
+  'STAB_L3',
+  'STAB_MASTER',
+  'STAB_MASTER_PRO',
+  'BIOMED_L1',
+  'BIOMED_L3',
+  'BIOMED_MASTER',
+  'BIOMED_MASTER_PRO',
+]
 
 const initialForm = {
   type: 'STAB_L1' as ConcoursType,
@@ -39,6 +48,7 @@ export default function AdminCreateConcoursPage() {
       ...current,
       titre: current.titre || config.title,
       description: current.description || config.subtitle,
+      departement: config.departement,
       filieres: config.filieres.join('\n'),
       centres: config.centers.join('\n'),
       piecesRequises: config.documents.map((document) => document.label).join('\n'),
@@ -96,7 +106,7 @@ export default function AdminCreateConcoursPage() {
       <div className="mb-6 flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Créer un concours STAB</h1>
-          <p className="mt-1 text-sm text-gray-600">Configurez le type, les dates, frais, filières, centres et pièces demandées.</p>
+          <p className="mt-1 text-sm text-gray-600">Configurez le niveau, les dates, frais, filieres, centres et pieces demandees.</p>
         </div>
         <Link href="/admin/concours" className="btn-secondary w-full text-center md:w-auto">Retour à la liste</Link>
       </div>
@@ -118,7 +128,7 @@ function ConcoursFields({ form, updateField }: { form: typeof initialForm; updat
     <>
       <div className="grid gap-6 md:grid-cols-2">
         <div>
-          <label className="label-field">Type de concours</label>
+          <label className="label-field">Niveau du concours</label>
           <select className="input-field" value={form.type} onChange={(event) => updateField('type', event.target.value)}>
             {TYPES.map((type) => <option key={type} value={type}>{type}</option>)}
           </select>
