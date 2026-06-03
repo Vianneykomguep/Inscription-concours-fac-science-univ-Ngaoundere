@@ -4,20 +4,17 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState, useTransition } from 'react'
 import type { ConcoursType } from '@prisma/client'
-
-const TYPES: ConcoursType[] = [
-  'STAB_L1',
-  'STAB_L3',
-  'STAB_MASTER',
-  'STAB_MASTER_PRO',
-  'BIOMED_L1',
-  'BIOMED_L3',
-  'BIOMED_MASTER',
-  'BIOMED_MASTER_PRO',
-]
+import {
+  DEPARTMENT_OPTIONS,
+  LEVEL_OPTIONS,
+  getAvailableLevelsForDepartment,
+  getConcoursTypeFromDepartmentAndLevel,
+  getDepartmentAndLevelFromConcoursType,
+} from '@/lib/stab-config'
 
 type FormState = {
   type: ConcoursType
+  niveau: string
   titre: string
   description: string
   departement: string
@@ -36,10 +33,11 @@ type FormState = {
 }
 
 const emptyForm: FormState = {
-  type: 'STAB_L1',
+  type: 'IAA_MAF_M1',
+  niveau: 'M1',
   titre: '',
   description: '',
-  departement: 'STAB',
+  departement: 'IAA-MAF',
   nombrePlaces: '1',
   fraisInscription: '0',
   dateOuverture: '',
@@ -67,11 +65,13 @@ export default function EditConcoursPage({ params }: { params: { id: string } })
         return response.json()
       })
       .then((concours) => {
+        const selection = getDepartmentAndLevelFromConcoursType(concours.type)
         setForm({
           type: concours.type,
+          niveau: selection.niveau,
           titre: concours.titre,
           description: concours.description,
-          departement: concours.departement,
+          departement: selection.departement,
           nombrePlaces: String(concours.nombrePlaces),
           fraisInscription: String(concours.fraisInscription),
           dateOuverture: concours.dateOuverture?.split('T')[0] ?? '',
@@ -90,7 +90,29 @@ export default function EditConcoursPage({ params }: { params: { id: string } })
   }, [params.id])
 
   const updateField = (field: keyof FormState, value: string | boolean) => {
-    setForm((current) => current ? { ...current, [field]: value } : current)
+    setForm((current) => {
+      if (!current) return current
+
+      if (field === 'departement') {
+        const nextLevel = getAvailableLevelsForDepartment(String(value))[0]
+        return {
+          ...current,
+          departement: String(value),
+          niveau: nextLevel,
+          type: getConcoursTypeFromDepartmentAndLevel(String(value), nextLevel),
+        }
+      }
+
+      if (field === 'niveau') {
+        return {
+          ...current,
+          niveau: String(value),
+          type: getConcoursTypeFromDepartmentAndLevel(current.departement, String(value)),
+        }
+      }
+
+      return { ...current, [field]: value }
+    })
   }
 
   const lines = (value: string) => value.split('\n').map((item) => item.trim()).filter(Boolean)
@@ -126,7 +148,7 @@ export default function EditConcoursPage({ params }: { params: { id: string } })
 
       if (!response.ok) {
         const data = await response.json()
-        setMessage(data?.error || 'Impossible de modifier le concours.')
+        setMessage(data.error || 'Impossible de modifier le concours.')
         return
       }
 
@@ -137,6 +159,8 @@ export default function EditConcoursPage({ params }: { params: { id: string } })
   if (!form) {
     return <div className="rounded-xl border border-gray-200 bg-white p-6 text-gray-600">{message ?? 'Chargement...'}</div>
   }
+
+  const availableLevels = getAvailableLevelsForDepartment(form.departement)
 
   return (
     <div>
@@ -152,11 +176,16 @@ export default function EditConcoursPage({ params }: { params: { id: string } })
         <div className="grid gap-6 md:grid-cols-2">
           <div>
             <label className="label-field">Niveau du concours</label>
-            <select className="input-field" value={form.type} onChange={(event) => updateField('type', event.target.value as ConcoursType)}>
-              {TYPES.map((type) => <option key={type} value={type}>{type}</option>)}
+            <select className="input-field" value={form.niveau} onChange={(event) => updateField('niveau', event.target.value)}>
+              {LEVEL_OPTIONS.filter((option) => availableLevels.includes(option.value)).map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
             </select>
           </div>
-          <Field label="Département" value={form.departement} onChange={(value) => updateField('departement', value)} />
+          <div>
+            <label className="label-field">Département</label>
+            <select className="input-field" value={form.departement} onChange={(event) => updateField('departement', event.target.value)}>
+              {DEPARTMENT_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+            </select>
+          </div>
           <Field label="Titre" value={form.titre} onChange={(value) => updateField('titre', value)} />
           <Field label="Nombre de places" type="number" value={form.nombrePlaces} onChange={(value) => updateField('nombrePlaces', value)} />
           <Field label="Frais d'inscription (XAF)" type="number" value={form.fraisInscription} onChange={(value) => updateField('fraisInscription', value)} />

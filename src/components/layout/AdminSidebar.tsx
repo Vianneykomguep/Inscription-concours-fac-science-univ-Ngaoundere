@@ -45,7 +45,7 @@ export default function AdminSidebar({ userRole }: { userRole: UserRole }) {
 
       <aside
         className={cn(
-          'fixed left-0 top-[73px] z-40 h-[calc(100vh-4rem)] w-64 border-r border-slate-200 bg-white transition-transform duration-300',
+          'fixed left-0 top-[73px] z-40 h-[calc(100vh-73px)] w-64 overflow-y-auto border-r border-slate-200 bg-white transition-transform duration-300',
           mobileOpen ? 'translate-x-0' : '-translate-x-full',
           'lg:translate-x-0',
         )}

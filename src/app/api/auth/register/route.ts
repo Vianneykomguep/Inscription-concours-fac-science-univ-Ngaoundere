@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+﻿import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { hashPassword, generateOTP, generateToken } from '@/lib/auth'
 import { registerSchema } from '@/lib/validations'
@@ -30,10 +30,9 @@ export async function POST(request: Request) {
       }
     })
 
-    await sendEmail(data.email, 'Vérification de votre compte', otpEmailTemplate(`${data.firstName} ${data.lastName}`, otp))
-
+    const emailSent = await sendEmail(data.email, 'Vérification de votre compte', otpEmailTemplate(`${data.firstName} ${data.lastName}`, otp))
     const token = generateToken({ userId: user.id, email: user.email, role: user.role })
-    const response = NextResponse.json({ success: true, requiresVerification: true })
+    const response = NextResponse.json({ success: true, requiresVerification: true, emailSent, warning: emailSent ? undefined : "Compte créé, mais l'email de vérification n'a pas pu être envoyé. Vérifiez la configuration SMTP puis utilisez Renvoyer le code." })
     response.cookies.set('auth-token', token, {
       httpOnly: true, secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax', maxAge: 7 * 24 * 60 * 60, path: '/',

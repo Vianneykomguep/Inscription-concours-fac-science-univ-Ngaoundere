@@ -36,7 +36,6 @@ export default function STABApplicationForm({ config }: Props) {
     filiere: '',
     centre: '',
     signatureCandidat: '',
-    signatureAgent: '',
     academic: {},
   })
 
@@ -80,7 +79,7 @@ export default function STABApplicationForm({ config }: Props) {
         const result = await response.json()
 
         if (!response.ok) {
-          setError(result?.error || 'Impossible de soumettre la candidature.')
+          setError(result.error || 'Impossible de soumettre la candidature.')
           return
         }
 

@@ -20,6 +20,7 @@
     "bcryptjs": "^2.4.3",
     "clsx": "^2.1.0",
     "date-fns": "^3.6.0",
+    "docx": "^9.7.0",
     "jsonwebtoken": "^9.0.2",
     "jspdf": "^2.5.0",
     "jspdf-autotable": "^3.8.0",
@@ -57,5 +58,21 @@
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
-  }
+  },
+  "main": "generator.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Vianneykomguep/Inscription-concours-fac-science-univ-Ngaoundere.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Vianneykomguep/Inscription-concours-fac-science-univ-Ngaoundere/issues"
+  },
+  "homepage": "https://github.com/Vianneykomguep/Inscription-concours-fac-science-univ-Ngaoundere#readme"
 }

@@ -35,6 +35,7 @@ enum ConcoursType {
   BIOMED_L3
   BIOMED_MASTER
   BIOMED_MASTER_PRO
+  IAA_MAF_M1
   
 }
 
@@ -100,6 +101,9 @@ model User {
 
   otpCode      String?   @map("otp_code")
   otpExpiresAt DateTime? @map("otp_expires_at")
+
+  passwordResetCode      String?   @map("password_reset_code")
+  passwordResetExpiresAt DateTime? @map("password_reset_expires_at")
 
   isActive Boolean @default(true) @map("is_active")
 

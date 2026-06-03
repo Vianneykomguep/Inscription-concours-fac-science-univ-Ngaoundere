@@ -5,7 +5,7 @@ import ConcoursRowActions from '@/components/admin/ConcoursRowActions'
 import { getCurrentUser } from '@/lib/auth'
 import { Permission, hasPermission } from '@/lib/permissions'
 import AdminPermissionNotice from '@/components/admin/AdminPermissionNotice'
-import { STAB_TYPE_LABELS } from '@/lib/stab-config'
+import { STAB_TYPE_LABELS, getDepartmentSortRank } from '@/lib/stab-config'
 
 const STATUS_BADGES: Record<string, string> = {
   BROUILLON: 'badge-gray',
@@ -31,7 +31,13 @@ export default async function AdminConcoursPage() {
     orderBy: [{ departement: 'asc' }, { createdAt: 'desc' }],
   })
 
-  const grouped = concours.reduce<Record<string, typeof concours>>((acc, item) => {
+  const sortedConcours = [...concours].sort((a, b) => {
+    const departmentRank = getDepartmentSortRank(a.departement) - getDepartmentSortRank(b.departement)
+    if (departmentRank !== 0) return departmentRank
+    return b.createdAt.getTime() - a.createdAt.getTime()
+  })
+
+  const grouped = sortedConcours.reduce<Record<string, typeof concours>>((acc, item) => {
     acc[item.departement] = acc[item.departement] ?? []
     acc[item.departement].push(item)
     return acc

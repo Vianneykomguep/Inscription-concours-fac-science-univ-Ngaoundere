@@ -55,19 +55,19 @@ export default function UserAdminActions({ userId, currentUserId, role, isActive
       <div className="flex flex-wrap gap-2">
         <button
           type="button"
-          className={isActive ? 'btn-secondary px-3 py-2 text-xs' : 'btn-primary px-3 py-2 text-xs'}
+        className={isActive ? 'btn-secondary px-3 py-2 text-xs' : 'btn-primary px-3 py-2 text-xs'}
           disabled={isPending || isSelf}
           onClick={() => update({ isActive: !isActive })}
         >
-          {isActive ? 'Desactiver' : 'Activer'}
+        {isActive ? 'Desactiver' : 'Activer'}
         </button>
         <button
           type="button"
-          className={emailVerified ? 'btn-secondary px-3 py-2 text-xs' : 'btn-primary px-3 py-2 text-xs'}
+        className={emailVerified ? 'btn-secondary px-3 py-2 text-xs' : 'btn-primary px-3 py-2 text-xs'}
           disabled={isPending}
           onClick={() => update({ emailVerified: !emailVerified })}
         >
-          {emailVerified ? 'Marquer non verifie' : 'Verifier email'}
+        {emailVerified ? 'Marquer non verifie' : 'Verifier email'}
         </button>
       </div>
 

@@ -1,0 +1,169 @@
+﻿<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <title>Guide - Ajouter un departement et des concours</title>
+  <style>
+    @page { size: A4; margin: 18mm; }
+    body { font-family: Arial, sans-serif; color: #102018; line-height: 1.45; }
+    h1 { color: #006633; font-size: 26px; margin: 0 0 8px; }
+    h2 { color: #006633; font-size: 18px; margin-top: 24px; border-bottom: 1px solid #d8e7dd; padding-bottom: 6px; }
+    h3 { font-size: 15px; margin: 18px 0 6px; }
+    p, li { font-size: 12.5px; }
+    code { background: #f1f5f2; padding: 2px 4px; border-radius: 4px; font-family: Consolas, monospace; }
+    pre { background: #0f172a; color: #e2e8f0; padding: 12px; border-radius: 8px; font-size: 11px; white-space: pre-wrap; }
+    .note { background: #fff8e1; border-left: 4px solid #cc9900; padding: 10px 12px; margin: 12px 0; }
+    .ok { background: #eefaf3; border-left: 4px solid #006633; padding: 10px 12px; margin: 12px 0; }
+    .page-break { page-break-before: always; }
+  </style>
+</head>
+<body>
+  <h1>Guide d'ajout d'un departement et de concours</h1>
+  <p><strong>Projet :</strong> Plateforme concours - Universite de Ngaoundere</p>
+  <p>Ce document explique comment ajouter un nouveau departement, ses niveaux de concours, ses pieces demandees, la route de candidature et l'entree en base.</p>
+
+  <h2>1. Comprendre l'organisation</h2>
+  <ul>
+    <li><code>prisma/schema.prisma</code> contient les types officiels de concours dans <code>enum ConcoursType</code>.</li>
+    <li><code>src/lib/stab-config.ts</code> contient les departements, niveaux, filieres, centres et pieces.</li>
+    <li><code>src/lib/concours-links.ts</code> relie chaque type a une page de candidature.</li>
+    <li><code>src/lib/validations.ts</code> autorise les types et departements dans les API.</li>
+    <li><code>src/app/concours/[famille]/[niveau]/page.tsx</code> affiche le formulaire candidat.</li>
+    <li>La table <code>concours</code> contient les concours visibles par les candidats.</li>
+  </ul>
+
+  <h2>2. Ajouter le type dans Prisma</h2>
+  <p>Ouvrir <code>prisma/schema.prisma</code>, puis ajouter un type dans <code>enum ConcoursType</code>.</p>
+  <pre>enum ConcoursType {
+  IAA_MAF_M1
+  STAB_L1
+  STAB_L3
+  STAB_MASTER
+  STAB_MASTER_PRO
+  BIOMED_L1
+  BIOMED_L3
+  BIOMED_MASTER
+  BIOMED_MASTER_PRO
+}</pre>
+  <p>Convention conseillee : <code>DEPARTEMENT_NIVEAU</code>, par exemple <code>INFO_L1</code>, <code>INFO_M1</code>, <code>IAA_MAF_M1</code>.</p>
+
+  <h2>3. Ajouter le departement et les niveaux</h2>
+  <p>Dans <code>src/lib/stab-config.ts</code>, ajouter le departement dans <code>DEPARTMENT_OPTIONS</code>.</p>
+  <pre>export const DEPARTMENT_OPTIONS = [
+  { value: 'IAA-MAF', label: 'IAA-MAF' },
+  { value: 'STAB', label: 'STAB' },
+  { value: 'Sciences biomedicales', label: 'Sciences biomedicales' },
+] as const</pre>
+  <p>Ensuite, associer le departement aux niveaux disponibles dans <code>TYPE_BY_DEPARTMENT_AND_LEVEL</code>.</p>
+  <pre>const TYPE_BY_DEPARTMENT_AND_LEVEL = {
+  'IAA-MAF': {
+    M1: 'IAA_MAF_M1',
+  },
+  STAB: {
+    L1: 'STAB_L1',
+    L3: 'STAB_L3',
+    M1: 'STAB_MASTER',
+    M2: 'STAB_MASTER_PRO',
+  },
+}</pre>
+  <div class="note">Si un departement ne propose que M1, le formulaire admin affichera seulement M1.</div>
+
+  <h2>4. Ajouter filieres, centres et pieces</h2>
+  <p>Toujours dans <code>src/lib/stab-config.ts</code>, creer les constantes du nouveau concours.</p>
+  <pre>export const IAA_MAF_M1_FILIERES = [
+  'Applied Artificial Intelligence',
+  'Financial Mathematics',
+]
+
+export const IAA_MAF_CENTERS = ['Ngaoundere', 'Yaounde (Nkolbisson)', 'Maroua']
+
+export const IAA_MAF_M1_DOCUMENTS = [
+  { type: 'demande_manuscrite_timbree', label: 'Demande manuscrite timbree', required: true },
+  { type: 'formulaire_candidature', label: 'Formulaire de candidature dument rempli', required: true },
+]</pre>
+  <p>Chaque piece a un <code>type</code> technique unique, un <code>label</code> visible, et <code>required</code> pour dire si elle est obligatoire.</p>
+
+  <h2>5. Ajouter la configuration du concours</h2>
+  <p>Dans <code>STAB_FORM_CONFIGS</code>, ajouter une entree pour le nouveau type.</p>
+  <pre>IAA_MAF_M1: {
+  type: 'IAA_MAF_M1',
+  niveau: 'Master professionnel 1',
+  departement: 'IAA-MAF',
+  title: 'Concours IAA-MAF Master professionnel 1',
+  subtitle: 'Premiere annee du Master professionnel en Intelligence artificielle appliquee et Mathematiques financieres.',
+  filieres: IAA_MAF_M1_FILIERES,
+  centers: IAA_MAF_CENTERS,
+  documents: IAA_MAF_M1_DOCUMENTS,
+},</pre>
+  <p>Ajouter aussi le libelle dans <code>STAB_TYPE_LABELS</code>.</p>
+  <pre>IAA_MAF_M1: 'IAA-MAF Master professionnel 1',</pre>
+
+  <div class="page-break"></div>
+  <h2>6. Ajouter les champs academiques du formulaire</h2>
+  <p>Dans <code>src/components/forms/stab/AcademicSection.tsx</code>, ajouter les champs du nouveau type.</p>
+  <pre>IAA_MAF_M1: [
+  { name: 'licence', label: 'Licence ou diplome equivalent' },
+  { name: 'etablissement', label: 'Etablissement' },
+  { name: 'anneeObtention', label: "Annee d'obtention", type: 'number' },
+  { name: 'mention', label: 'Mention' },
+],</pre>
+
+  <h2>7. Ajouter le lien de candidature</h2>
+  <p>Dans <code>src/lib/concours-links.ts</code>, relier le type a sa route.</p>
+  <pre>IAA_MAF_M1: '/concours/iaa-maf/m1',</pre>
+
+  <h2>8. Creer la page de candidature</h2>
+  <p>Creer un fichier comme <code>src/app/concours/iaa-maf/m1/page.tsx</code>.</p>
+  <pre>import STABMasterForm from '@/components/forms/stab/STABMasterForm'
+import STABPageShell from '@/components/forms/stab/STABPageShell'
+import { getCurrentUser } from '@/lib/auth'
+import { getActiveStabFormConfig } from '@/lib/stab-server'
+
+export default async function IaaMafMaster1Page() {
+  const user = await getCurrentUser()
+  const config = await getActiveStabFormConfig('IAA_MAF_M1')
+
+  return (
+    &lt;STABPageShell user={user} config={config}&gt;
+      &lt;STABMasterForm config={config} /&gt;
+    &lt;/STABPageShell&gt;
+  )
+}</pre>
+
+  <h2>9. Autoriser le type dans les validations</h2>
+  <p>Dans <code>src/lib/validations.ts</code>, ajouter le type dans les enums Zod.</p>
+  <pre>type: z.enum(['IAA_MAF_M1', 'STAB_L1', ...])
+concoursType: z.enum(['IAA_MAF_M1', 'STAB_L1', ...])
+departement: z.enum(['IAA-MAF', 'STAB', 'Sciences biomedicales'])</pre>
+
+  <h2>10. Creer le concours dans la base</h2>
+  <p>Le type et la configuration ne suffisent pas : il faut aussi une ligne dans la table <code>concours</code>. Le plus propre est de creer un seed comme <code>prisma/seed-iaa-maf.ts</code>.</p>
+  <pre>await prisma.concours.upsert({
+  where: { id: 'iaa-maf-m1-2026' },
+  update: { type: 'IAA_MAF_M1', titre: config.title, ... },
+  create: { id: 'iaa-maf-m1-2026', type: 'IAA_MAF_M1', createdBy: admin.id, ... },
+})</pre>
+  <p>Si le concours a un PDF officiel, placer le fichier dans <code>public/docs</code> puis renseigner <code>guideUrl</code>.</p>
+  <pre>guideUrl: '/docs/Concours_IAA-MAF-2026.pdf'</pre>
+
+  <h2>11. Commandes a lancer</h2>
+  <pre>npx prisma generate
+npx prisma db push
+$env:TS_NODE_COMPILER_OPTIONS='{ "module": "CommonJS" }'
+npx ts-node prisma/seed-iaa-maf.ts
+npm run build
+npx tsc --noEmit</pre>
+  <div class="note">Sur Windows, si <code>prisma generate</code> echoue avec un fichier verrouille, arreter le serveur <code>npm run dev</code>, relancer la commande, puis redemarrer le serveur.</div>
+
+  <h2>12. Verification finale</h2>
+  <ul>
+    <li>Ouvrir <code>/concours</code> et verifier que le nouveau departement apparait.</li>
+    <li>Cliquer sur <code>Details</code> et verifier les pieces, frais, places et filieres.</li>
+    <li>Verifier que <code>Telecharger le guide</code> apparait si <code>guideUrl</code> existe.</li>
+    <li>Cliquer sur <code>Postuler</code> et verifier que le formulaire charge.</li>
+    <li>Dans l'admin, ouvrir <code>/admin/concours/new</code> et verifier que le departement est disponible.</li>
+  </ul>
+
+  <div class="ok">Bon reflexe : garder la configuration dans <code>stab-config.ts</code> comme source principale. Cela evite de disperser les filieres, centres et pieces dans plusieurs pages.</div>
+</body>
+</html>

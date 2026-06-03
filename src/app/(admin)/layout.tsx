@@ -25,7 +25,7 @@ export default async function AdminLayout({
 
   return (
 
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(204,153,0,0.10),transparent_28rem),linear-gradient(180deg,#f7fbf8,#f8fafc)]">
 
       {/* HEADER */}
 

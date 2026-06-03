@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { UserRole } from '@prisma/client'
-import { Mail, ShieldCheck, UserCheck, UserCog, Users } from 'lucide-react'
+import { Mail, ShieldCheck, UserCheck, UserCog, Users, type LucideIcon } from 'lucide-react'
 import { prisma } from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/auth'
 import { hasPermission, Permission } from '@/lib/permissions'
@@ -26,7 +26,7 @@ const ROLE_BADGES: Record<UserRole, string> = {
 export default async function AdminUsersPage({
   searchParams,
 }: {
-  searchParams?: { role?: string; statut?: string; q?: string }
+  searchParams: { role: string; statut: string; q: string }
 }) {
   const currentUser = await getCurrentUser()
   if (!currentUser || !hasPermission(currentUser, Permission.MANAGE_USERS)) {
@@ -37,9 +37,9 @@ export default async function AdminUsersPage({
     )
   }
 
-  const role = Object.values(UserRole).includes(searchParams?.role as UserRole) ? searchParams?.role as UserRole : undefined
-  const statut = searchParams?.statut
-  const q = searchParams?.q?.trim()
+  const role = Object.values(UserRole).includes(searchParams.role as UserRole) ? searchParams.role as UserRole : undefined
+  const statut = searchParams.statut
+  const q = searchParams.q.trim()
 
   const where = {
     ...(role ? { role } : {}),
@@ -173,11 +173,11 @@ export default async function AdminUsersPage({
                   </td>
                   <td className="px-4 py-4">
                     <div className="flex flex-col gap-2">
-                      <span className={user.isActive ? 'badge-success w-fit' : 'badge-danger w-fit'}>
-                        {user.isActive ? 'Actif' : 'Inactif'}
+                    <span className={user.isActive ? 'badge-success w-fit' : 'badge-danger w-fit'}>
+                      {user.isActive ? 'Actif' : 'Inactif'}
                       </span>
                       <span className={user.emailVerified ? 'badge-info w-fit' : 'badge-gray w-fit'}>
-                        {user.emailVerified ? 'Email verifie' : 'Email non verifie'}
+                      {user.emailVerified ? 'Email verifie' : 'Email non verifie'}
                       </span>
                     </div>
                   </td>
@@ -214,7 +214,7 @@ export default async function AdminUsersPage({
   )
 }
 
-function Metric({ label, value, icon: Icon }: { label: string; value: number; icon: React.ComponentType<{ className?: string }> }) {
+function Metric({ label, value, icon: Icon }: { label: string; value: number; icon: LucideIcon }) {
   return (
     <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex items-center justify-between">

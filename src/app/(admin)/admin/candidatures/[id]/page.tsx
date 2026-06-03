@@ -7,6 +7,8 @@ import AdminStatusActions from '@/components/admin/AdminStatusActions'
 import { getCurrentUser } from '@/lib/auth'
 import { Permission, hasPermission } from '@/lib/permissions'
 import AdminPermissionNotice from '@/components/admin/AdminPermissionNotice'
+import CandidatureMessageForm from '@/components/candidatures/CandidatureMessageForm'
+import { getReceiptConfig } from '@/lib/receipts'
 
 export default async function AdminCandidatureDetail({ params }: { params: { id: string } }) {
   const user = await getCurrentUser()
@@ -36,6 +38,7 @@ export default async function AdminCandidatureDetail({ params }: { params: { id:
 
   if (!candidature) notFound()
 
+  const receiptConfig = getReceiptConfig(candidature.type)
   const complementReceived =
     candidature.statut === 'SOUMISE' &&
     Boolean(candidature.commentaireAdmin?.includes('Complément fourni'))
@@ -50,6 +53,17 @@ export default async function AdminCandidatureDetail({ params }: { params: { id:
       <div className="mb-6 flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold">{candidature.nom} {candidature.prenom}</h1>
+          {receiptConfig && (
+            <a
+              href={receiptConfig.url}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-3 inline-flex items-center gap-2 rounded-md border border-emerald-200 px-3 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-50"
+            >
+              <Download className="h-4 w-4" />
+              Recepisse PDF
+            </a>
+          )}
           <p className="text-gray-500">N° {candidature.numeroDossier} — {candidature.concours.titre}</p>
         </div>
         <div className="flex flex-col items-end gap-2">
@@ -74,14 +88,14 @@ export default async function AdminCandidatureDetail({ params }: { params: { id:
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
-          <div className="rounded-xl border bg-white p-6">
+          <div id="messages" className="scroll-mt-28 rounded-xl border bg-white p-6">
             <h3 className="mb-3 font-semibold">Informations</h3>
             <div className="grid grid-cols-2 gap-2 text-sm">
               <p><span className="text-gray-500">Email :</span> {candidature.user.email}</p>
               <p><span className="text-gray-500">Tél :</span> {candidature.telephone || candidature.user.phone}</p>
               <p>
                 <span className="text-gray-500">Né(e) :</span>{' '}
-                {candidature.dateNaissance ? formatDate(candidature.dateNaissance) : '-'} à {candidature.lieuNaissance}
+                {candidature.dateNaissance ? formatDate(candidature.dateNaissance) : '-'} a {candidature.lieuNaissance}
               </p>
               <p><span className="text-gray-500">Diplôme :</span> {candidature.dernierDiplome} ({candidature.etablissement})</p>
             </div>
@@ -106,10 +120,10 @@ export default async function AdminCandidatureDetail({ params }: { params: { id:
                   <DocumentRow
                     key={document.id}
                     label={document.type}
-                    detail={document.verified ? 'Vérifié' : 'En attente'}
+                    detail={document.verified ? 'Verifie' : 'En attente'}
                     href={document.fileUrl}
                     highlighted={isComplementDocument}
-                    badge={isComplementDocument ? 'Nouveau complément' : undefined}
+                        badge={isComplementDocument ? 'Nouveau complément' : undefined}
                   />
                 )
               })}
@@ -146,6 +160,10 @@ export default async function AdminCandidatureDetail({ params }: { params: { id:
             ) : (
               <p className="text-sm text-gray-500">Aucun message n'est associé à cette candidature.</p>
             )}
+            <CandidatureMessageForm
+              candidatureId={candidature.id}
+              placeholder="Ecrivez une reponse au candidat..."
+            />
           </div>
         </div>
 

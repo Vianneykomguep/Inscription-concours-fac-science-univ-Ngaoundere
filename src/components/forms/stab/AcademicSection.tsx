@@ -10,6 +10,12 @@ type Props = {
 }
 
 const FIELDS: Record<ConcoursType, { name: string; label: string; type?: string }[]> = {
+  IAA_MAF_M1: [
+    { name: 'licence', label: 'Licence ou diplome equivalent' },
+    { name: 'etablissement', label: 'Etablissement' },
+    { name: 'anneeObtention', label: "Annee d'obtention", type: 'number' },
+    { name: 'mention', label: 'Mention' },
+  ],
   STAB_L1: [
     { name: 'anneeProbatoire', label: 'Annee obtention Probatoire', type: 'number' },
     { name: 'mentionProbatoire', label: 'Mention Probatoire' },

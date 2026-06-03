@@ -5,7 +5,7 @@ import { getCurrentUser } from '@/lib/auth'
 import { getConcoursApplyPath } from '@/lib/concours-links'
 import { prisma } from '@/lib/prisma'
 import { formatCurrency, formatDate } from '@/lib/utils'
-import { ArrowLeft, ArrowRight, CalendarDays, CheckCircle2, FileText, MapPin, Users } from 'lucide-react'
+import { ArrowLeft, ArrowRight, CalendarDays, CheckCircle2, Download, FileText, MapPin, Users, type LucideIcon } from 'lucide-react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
@@ -53,6 +53,16 @@ export default async function ConcoursDetailPage({ params }: { params: { id: str
                 <Link href={getConcoursApplyPath(concours.type, concours.id)} className="btn-primary mt-6 w-full">
                   Remplir le formulaire <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
+                {concours.guideUrl && (
+                  <a
+                    href={concours.guideUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-secondary mt-3 flex w-full items-center justify-center"
+                  >
+                    Télécharger le guide
+                  </a>
+                )}
               </aside>
             </div>
           </div>
@@ -78,8 +88,8 @@ export default async function ConcoursDetailPage({ params }: { params: { id: str
           </div>
 
           <div className="rounded-lg border border-gray-200 bg-white p-6">
-            <h2 className="flex items-center gap-2 text-lg font-semibold text-gray-950">
-              <FileText className="h-5 w-5 text-uni-green" /> Pièces à fournir
+            <h2 className="text-lg font-semibold text-gray-950">
+              Pièces à fournir
             </h2>
             <div className="mt-4 space-y-2">
               {pieces.map((piece) => (
@@ -94,7 +104,7 @@ export default async function ConcoursDetailPage({ params }: { params: { id: str
   )
 }
 
-function Info({ icon: Icon, label, value }: { icon: React.ComponentType<{ className?: string }>; label: string; value: string }) {
+function Info({ icon: Icon, label, value }: { icon: LucideIcon; label: string; value: string }) {
   return (
     <div className="flex items-center gap-3">
       <Icon className="h-4 w-4 text-uni-green" />
@@ -114,3 +124,5 @@ function Row({ text }: { text: string }) {
     </div>
   )
 }
+
+

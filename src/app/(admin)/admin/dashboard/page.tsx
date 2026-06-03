@@ -1,11 +1,5 @@
 import { prisma } from '@/lib/prisma'
-import {
-  FileText,
-  Users,
-  Trophy,
-  CheckCircle,
-} from 'lucide-react'
-
+import { FileText, Users, Trophy, CheckCircle } from 'lucide-react'
 import {
   CANDIDATURE_STATUT_LABELS,
 } from '@/lib/utils'
@@ -145,14 +139,14 @@ export default async function AdminDashboard() {
           <div
             key={i}
 
-            className="
+            className={`
               group flex items-center gap-4
               rounded-2xl border border-gray-200
               bg-white p-6 shadow-sm
               transition-all
               hover:-translate-y-1
               hover:shadow-md
-            "
+            `}
           >
 
             <div

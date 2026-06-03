@@ -5,7 +5,7 @@ import { hasPermission, Permission } from '@/lib/permissions'
 import AdminPermissionNotice from '@/components/admin/AdminPermissionNotice'
 import ResultDecisionForm from '@/components/admin/ResultDecisionForm'
 import { CANDIDATURE_STATUT_LABELS, formatDate } from '@/lib/utils'
-import { Award, Download, Medal } from 'lucide-react'
+import { Award, Download, Medal, type LucideIcon } from 'lucide-react'
 
 export default async function AdminResultatsPage() {
   const user = await getCurrentUser()
@@ -113,7 +113,7 @@ export default async function AdminResultatsPage() {
   )
 }
 
-function Metric({ label, value, icon: Icon }: { label: string; value: number; icon: React.ComponentType<{ className?: string }> }) {
+function Metric({ label, value, icon: Icon }: { label: string; value: number; icon: LucideIcon }) {
   return (
     <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex items-center justify-between">

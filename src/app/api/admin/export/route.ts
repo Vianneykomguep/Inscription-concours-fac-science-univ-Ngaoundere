@@ -14,9 +14,9 @@ export async function GET(request: Request) {
   }
 
   const { searchParams } = new URL(request.url)
-  const kind = searchParams.get('kind') ?? 'candidatures'
-  const format = searchParams.get('format') ?? 'xlsx'
-  const concoursId = searchParams.get('concoursId') ?? undefined
+const kind = searchParams.get('kind') ?? 'candidatures'
+const format = searchParams.get('format') ?? 'xlsx'
+const concoursId = searchParams.get('concoursId') ?? undefined
 
   const rows = await getRows(kind, concoursId)
   const filename = `${kind}-${new Date().toISOString().slice(0, 10)}.${format === 'csv' ? 'csv' : 'xlsx'}`
@@ -57,7 +57,7 @@ async function getRows(kind: string, concoursId?: string): Promise<Row[]> {
       Places: item.nombrePlaces,
       Candidatures: item._count.candidatures,
       Statut: item.statut,
-      Actif: item.isActive ? 'Oui' : 'Non',
+        Actif: item.isActive ? 'Oui' : 'Non',
       Cloture: item.dateCloture.toISOString().slice(0, 10),
     }))
   }
@@ -77,12 +77,12 @@ async function getRows(kind: string, concoursId?: string): Promise<Row[]> {
       Statut: item.statutFinal,
       Note: item.note ? Number(item.note) : null,
       Rang: item.rang,
-      Publication: item.publishedAt?.toISOString().slice(0, 10) ?? '',
+        Publication: item.publishedAt?.toISOString().slice(0, 10) ?? '',
     }))
   }
 
   const candidatures = await prisma.candidature.findMany({
-    where: concoursId ? { concoursId } : undefined,
+      where: concoursId ? { concoursId } : undefined,
     include: {
       concours: true,
       user: { select: { email: true } },
@@ -104,10 +104,10 @@ async function getRows(kind: string, concoursId?: string): Promise<Row[]> {
     Telephone: item.telephone ?? '',
     Filiere: item.filiere,
     Centre: item.centre,
-    Statut: CANDIDATURE_STATUT_LABELS[item.statut] ?? item.statut,
+        Statut: CANDIDATURE_STATUT_LABELS[item.statut] ?? item.statut,
     Documents: item.documents.length + item.uploadedDocuments.length,
     Paiements: item.paiements.length,
-    Soumission: item.submittedAt?.toISOString().slice(0, 10) ?? item.createdAt.toISOString().slice(0, 10),
+        Soumission: item.submittedAt?.toISOString().slice(0, 10) ?? item.createdAt.toISOString().slice(0, 10),
   }))
 }
 

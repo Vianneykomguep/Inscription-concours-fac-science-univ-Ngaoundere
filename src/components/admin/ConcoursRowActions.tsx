@@ -34,7 +34,7 @@ export default function ConcoursRowActions({ id, titre, statut, userRole }: Conc
         router.refresh()
       } else {
         const data = await response.json()
-        alert(data?.error || 'Erreur lors de la suppression')
+        alert(data.error || 'Erreur lors de la suppression')
       }
     } catch (error) {
       alert('Erreur: ' + (error as Error).message)

@@ -14,10 +14,10 @@ export const loginSchema = z.object({
 })
 
 export const concoursSchema = z.object({
-  type: z.enum(['STAB_L1', 'STAB_L3', 'STAB_MASTER', 'STAB_MASTER_PRO', 'BIOMED_L1', 'BIOMED_L3', 'BIOMED_MASTER', 'BIOMED_MASTER_PRO']).default('STAB_L1'),
+  type: z.enum(['IAA_MAF_M1', 'STAB_L1', 'STAB_L3', 'STAB_MASTER', 'STAB_MASTER_PRO', 'BIOMED_L1', 'BIOMED_L3', 'BIOMED_MASTER', 'BIOMED_MASTER_PRO']).default('IAA_MAF_M1'),
   titre: z.string().min(3, 'Le titre est requis'),
   description: z.string().min(10, 'La description est requise'),
-  departement: z.string().min(2, 'Le département est requis'),
+  departement: z.enum(['IAA-MAF', 'STAB', 'Sciences biomedicales']),
   filieres: z.array(z.string().min(1)).default([]),
   centres: z.array(z.string().min(1)).default([]),
   piecesRequises: z.array(z.string().min(1)).default([]),
@@ -33,7 +33,7 @@ export const concoursSchema = z.object({
 })
 
 export const stabCandidatureSchema = z.object({
-  concoursType: z.enum(['STAB_L1', 'STAB_L3', 'STAB_MASTER', 'STAB_MASTER_PRO', 'BIOMED_L1', 'BIOMED_L3', 'BIOMED_MASTER', 'BIOMED_MASTER_PRO']),
+  concoursType: z.enum(['IAA_MAF_M1', 'STAB_L1', 'STAB_L3', 'STAB_MASTER', 'STAB_MASTER_PRO', 'BIOMED_L1', 'BIOMED_L3', 'BIOMED_MASTER', 'BIOMED_MASTER_PRO']),
   filiere: z.string().min(1, 'La filière est requise'),
   centre: z.string().min(1, 'Le centre est requis'),
   nom: z.string().min(2, 'Le nom est requis'),
@@ -46,7 +46,6 @@ export const stabCandidatureSchema = z.object({
   departementOrigine: z.string().min(2, "Le département d'origine est requis"),
   telephone: z.string().optional(),
   signatureCandidat: z.string().min(2, 'La signature du candidat est requise'),
-  signatureAgent: z.string().optional(),
   academic: z.record(z.string()).default({}),
 })
 

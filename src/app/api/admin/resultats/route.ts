@@ -13,8 +13,8 @@ export async function POST(request: Request) {
   const body = await request.json()
   const candidatureId = String(body.candidatureId ?? '')
   const statutFinal = String(body.statutFinal ?? '')
-  const note = body.note === '' || body.note === undefined ? null : Number(body.note)
-  const rang = body.rang === '' || body.rang === undefined ? null : Number(body.rang)
+    const note = body.note === '' || body.note === undefined ? null : Number(body.note)
+    const rang = body.rang === '' || body.rang === undefined ? null : Number(body.rang)
 
   if (!candidatureId || !['ADMISSIBLE', 'ADMIS', 'NON_ADMIS'].includes(statutFinal)) {
     return NextResponse.json({ error: 'Donnees invalides' }, { status: 400 })

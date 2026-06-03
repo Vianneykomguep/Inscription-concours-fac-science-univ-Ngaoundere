@@ -56,10 +56,10 @@ export default async function AdminExportPage() {
             <h2 className="mt-4 text-lg font-bold text-slate-950">{item.title}</h2>
             <p className="mt-2 min-h-[64px] text-sm leading-6 text-slate-600">{item.description}</p>
             <div className="mt-5 flex gap-3">
-              <a href={`/api/admin/export?kind=${item.kind}&format=xlsx`} className="btn-primary flex-1">
+              <a href={`/api/admin/exportkind=${item.kind}&format=xlsx`} className="btn-primary flex-1">
                 <Download className="mr-2 h-4 w-4" /> Excel
               </a>
-              <a href={`/api/admin/export?kind=${item.kind}&format=csv`} className="btn-secondary flex-1">
+              <a href={`/api/admin/exportkind=${item.kind}&format=csv`} className="btn-secondary flex-1">
                 CSV
               </a>
             </div>
@@ -74,7 +74,7 @@ export default async function AdminExportPage() {
           </div>
           <div>
             <h2 className="text-lg font-bold text-slate-950">Export par concours</h2>
-            <p className="text-sm text-slate-600">Telechargez directement la liste des inscrits d'un niveau precis.</p>
+          <p className="text-sm text-slate-600">Telechargez directement la liste des inscrits d'un niveau precis.</p>
           </div>
         </div>
 
@@ -85,7 +85,7 @@ export default async function AdminExportPage() {
                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{item.departement}</p>
                 <p className="font-medium text-slate-900">{item.titre}</p>
               </div>
-              <a href={`/api/admin/export?kind=candidatures&format=xlsx&concoursId=${item.id}`} className="btn-secondary shrink-0">
+              <a href={`/api/admin/exportkind=candidatures&format=xlsx&concoursId=${item.id}`} className="btn-secondary shrink-0">
                 Excel
               </a>
             </div>

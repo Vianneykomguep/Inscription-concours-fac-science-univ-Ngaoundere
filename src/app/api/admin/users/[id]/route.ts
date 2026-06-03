@@ -11,7 +11,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   }
 
   const body = await request.json()
-  const data: { role?: UserRole; isActive?: boolean; emailVerified?: boolean } = {}
+  const data: Partial<{ role: UserRole; isActive: boolean; emailVerified: boolean }> = {}
 
   if (body.role !== undefined) {
     if (!Object.values(UserRole).includes(body.role)) {

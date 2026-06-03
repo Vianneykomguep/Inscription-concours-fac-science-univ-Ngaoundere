@@ -4,7 +4,7 @@ import { getCurrentUser } from '@/lib/auth'
 import { hasPermission, Permission } from '@/lib/permissions'
 import AdminPermissionNotice from '@/components/admin/AdminPermissionNotice'
 import { CANDIDATURE_STATUT_LABELS } from '@/lib/utils'
-import { BarChart3, Building2, CheckCircle2, FileText, GraduationCap, TrendingUp, Users } from 'lucide-react'
+import { BarChart3, Building2, CheckCircle2, FileText, GraduationCap, TrendingUp, Users, type LucideIcon } from 'lucide-react'
 
 export default async function AdminStatsPage() {
   const user = await getCurrentUser()
@@ -107,7 +107,7 @@ export default async function AdminStatsPage() {
             <tbody className="divide-y divide-slate-200">
               {concours.map((item) => {
                 const related = candidatures.filter((candidate) => candidate.concoursId === item.id)
-                const occupation = item.nombrePlaces ? Math.round((related.length / item.nombrePlaces) * 100) : 0
+              const occupation = item.nombrePlaces ? Math.round((related.length / item.nombrePlaces) * 100) : 0
                 return (
                   <tr key={item.id} className="hover:bg-slate-50">
                     <td className="px-4 py-3">{item.departement}</td>
@@ -149,7 +149,7 @@ function bestLabel(items: Record<string, number>) {
   return topEntries(items)[0]?.[0] ?? 'Aucune donnee'
 }
 
-function Metric({ label, value, icon: Icon }: { label: string; value: number | string; icon: React.ComponentType<{ className?: string }> }) {
+function Metric({ label, value, icon: Icon }: { label: string; value: number | string; icon: LucideIcon }) {
   return (
     <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex items-center justify-between">
@@ -188,7 +188,7 @@ function ProgressRow({ label, value, max, detail }: { label: string; value: numb
   )
 }
 
-function Insight({ label, value, icon: Icon }: { label: string; value: string; icon: React.ComponentType<{ className?: string }> }) {
+function Insight({ label, value, icon: Icon }: { label: string; value: string; icon: LucideIcon }) {
   return (
     <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
       <Icon className="h-5 w-5 text-uni-green" />

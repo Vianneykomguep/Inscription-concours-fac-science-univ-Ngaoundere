@@ -21,6 +21,23 @@ export default async function EditCandidatureComplementPage({ params }: { params
   if (!candidature || candidature.userId !== user.id) notFound()
   if (candidature.statut !== 'COMPLEMENT_DEMANDE') redirect(`/candidatures/${candidature.id}`)
 
+  const existingDocuments = [
+    ...candidature.documents.map((document) => ({
+      id: document.id,
+      label: document.nomFichier,
+      detail: `${document.type} - ${(document.tailleFichier / 1024 / 1024).toFixed(2)} Mo`,
+      href: document.url,
+      source: 'document' as const,
+    })),
+    ...candidature.uploadedDocuments.map((document) => ({
+      id: document.id,
+      label: document.type,
+      detail: document.verified ? 'Verifie' : 'En attente de verification',
+      href: document.fileUrl,
+      source: 'uploaded' as const,
+    })),
+  ]
+
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
       <Link href={`/candidatures/${candidature.id}`} className="mb-6 inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900">
@@ -40,7 +57,7 @@ export default async function EditCandidatureComplementPage({ params }: { params
 
       <div className="mb-6 card">
         <h2 className="mb-4 text-lg font-semibold text-gray-900">Documents existants</h2>
-        {candidature.documents.length === 0 && candidature.uploadedDocuments.length === 0 ? (
+      {candidature.documents.length === 0 && candidature.uploadedDocuments.length === 0 ? (
           <p className="text-sm text-gray-500">Aucun document n'a encore été enregistré pour cette candidature.</p>
         ) : (
           <div className="space-y-3">
@@ -56,7 +73,7 @@ export default async function EditCandidatureComplementPage({ params }: { params
               <DocumentLink
                 key={document.id}
                 label={document.type}
-                detail={document.verified ? 'Vérifié' : 'En attente de vérification'}
+                detail={document.verified ? 'Verifie' : 'En attente de verification'}
                 href={document.fileUrl}
               />
             ))}
@@ -64,7 +81,7 @@ export default async function EditCandidatureComplementPage({ params }: { params
         )}
       </div>
 
-      <ComplementResponseForm candidatureId={candidature.id} />
+      <ComplementResponseForm candidatureId={candidature.id} existingDocuments={existingDocuments} />
     </div>
   )
 }

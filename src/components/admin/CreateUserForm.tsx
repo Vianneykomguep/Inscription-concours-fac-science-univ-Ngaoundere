@@ -81,7 +81,7 @@ export default function CreateUserForm() {
             <p className="text-sm text-slate-500">Ajoutez un candidat, agent, responsable ou super admin.</p>
           </div>
         </div>
-        <span className="btn-primary pointer-events-none">{isOpen ? 'Fermer' : 'Nouveau'}</span>
+          <span className="btn-primary pointer-events-none">{isOpen ? 'Fermer' : 'Nouveau'}</span>
       </button>
 
       {isOpen && (
@@ -114,14 +114,14 @@ export default function CreateUserForm() {
             </label>
           </div>
 
-          {message && <p className={`mt-4 text-sm font-semibold ${message.includes('succes') ? 'text-green-700' : 'text-red-600'}`}>{message}</p>}
+        {message && <p className={`mt-4 text-sm font-semibold ${message.includes('succes') ? 'text-green-700' : 'text-red-600'}`}>{message}</p>}
 
           <div className="mt-5 flex justify-end gap-3">
             <button type="button" className="btn-secondary" onClick={() => setIsOpen(false)}>
               Annuler
             </button>
             <button type="submit" className="btn-primary" disabled={isPending}>
-              {isPending ? 'Creation...' : 'Creer le compte'}
+            {isPending ? 'Creation...' : 'Creer le compte'}
             </button>
           </div>
         </form>

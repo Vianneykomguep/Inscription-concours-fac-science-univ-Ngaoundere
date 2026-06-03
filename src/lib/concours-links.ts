@@ -1,6 +1,7 @@
 import type { ConcoursType } from '@prisma/client'
 
 export const STAB_CONCOURS_PATHS: Record<ConcoursType, string> = {
+  IAA_MAF_M1: '/concours/iaa-maf/m1',
   STAB_L1: '/concours/stab/l1',
   STAB_L3: '/concours/stab/l3',
   STAB_MASTER: '/concours/stab/master',
@@ -11,7 +12,7 @@ export const STAB_CONCOURS_PATHS: Record<ConcoursType, string> = {
   BIOMED_MASTER_PRO: '/concours/biomed/master-pro',
 }
 
-export function getConcoursApplyPath(type: ConcoursType, fallbackId?: string) {
+export function getConcoursApplyPath(type: ConcoursType, fallbackId: string) {
   return STAB_CONCOURS_PATHS[type] ?? (fallbackId ? `/concours/${fallbackId}` : '/concours')
 }
 

@@ -47,7 +47,14 @@ export default async function AdminCandidaturesPage() {
                   </div>
                 </td>
                 <td className="px-4 py-3 text-gray-500">{formatDate(c.createdAt)}</td>
-                <td className="px-4 py-3"><Link href={`/admin/candidatures/${c.id}`} className="text-blue-600 hover:underline">Examiner</Link></td>
+                <td className="px-4 py-3">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                    <Link href={`/admin/candidatures/${c.id}`} className="text-blue-600 hover:underline">Examiner</Link>
+                    <a href={`/api/admin/candidatures/${c.id}/fiche`} className="text-emerald-700 hover:underline">
+                      Télécharger la fiche candidat
+                    </a>
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>

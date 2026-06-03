@@ -37,23 +37,82 @@ export async function POST(request: Request, { params }: { params: { id: string 
     }
 
     const uploadedDocuments = []
+    const uploadedDocumentReplacements = []
+    const candidatureDocumentReplacements = []
 
     for (const [key, value] of formData.entries()) {
-      if (!key.startsWith('file:') || !(value instanceof File) || value.size === 0) continue
+      if (!(value instanceof File) || value.size === 0) continue
 
-      const type = key.replace('file:', '') || 'complement'
-      const uploaded = await uploadFile(value, `candidatures/${candidature.id}`)
-      uploadedDocuments.push({
-        candidatureId: candidature.id,
-        type,
-        fileUrl: uploaded.url,
-      })
+      if (key.startsWith('file:')) {
+        const type = key.replace('file:', '') || 'complement'
+        const uploaded = await uploadFile(value, `candidatures/${candidature.id}`)
+        uploadedDocuments.push({
+          candidatureId: candidature.id,
+          type,
+          fileUrl: uploaded.url,
+        })
+      }
+
+      if (key.startsWith('replace:uploaded:')) {
+        const documentId = key.replace('replace:uploaded:', '')
+        const existingDocument = await prisma.uploadedDocument.findFirst({
+          where: { id: documentId, candidatureId: candidature.id },
+        })
+        if (!existingDocument) continue
+
+        const uploaded = await uploadFile(value, `candidatures/${candidature.id}`)
+        uploadedDocumentReplacements.push({
+          id: existingDocument.id,
+          fileUrl: uploaded.url,
+        })
+      }
+
+      if (key.startsWith('replace:document:')) {
+        const documentId = key.replace('replace:document:', '')
+        const existingDocument = await prisma.candidatureDocument.findFirst({
+          where: { id: documentId, candidatureId: candidature.id },
+        })
+        if (!existingDocument) continue
+
+        const uploaded = await uploadFile(value, `candidatures/${candidature.id}`)
+        candidatureDocumentReplacements.push({
+          id: existingDocument.id,
+          fileUrl: uploaded.url,
+          fileName: value.name,
+          fileSize: value.size,
+          mimeType: value.type || 'application/octet-stream',
+        })
+      }
     }
 
     await prisma.$transaction([
       ...(uploadedDocuments.length > 0
         ? [prisma.uploadedDocument.createMany({ data: uploadedDocuments })]
         : []),
+      ...uploadedDocumentReplacements.map((document) =>
+        prisma.uploadedDocument.update({
+          where: { id: document.id },
+          data: {
+            fileUrl: document.fileUrl,
+            verified: false,
+          },
+        }),
+      ),
+      ...candidatureDocumentReplacements.map((document) =>
+        prisma.candidatureDocument.update({
+          where: { id: document.id },
+          data: {
+            url: document.fileUrl,
+            nomFichier: document.fileName,
+            tailleFichier: document.fileSize,
+            mimeType: document.mimeType,
+            statut: 'EN_ATTENTE',
+            commentaireAdmin: null,
+            verifiedBy: null,
+            verifiedAt: null,
+          },
+        }),
+      ),
       prisma.message.create({
         data: {
           candidatureId: candidature.id,

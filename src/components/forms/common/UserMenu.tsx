@@ -92,7 +92,6 @@ export default function UserMenu({
           className={`
             h-4 w-4 text-gray-400
             transition-transform
-
             ${open ? 'rotate-180' : ''}
           `}
         />
@@ -175,9 +174,7 @@ export default function UserMenu({
                     transition hover:bg-red-50
                   "
                 >
-                  <LogOut className="h-4 w-4" />
-
-                  Déconnexion
+                    Déconnexion
                 </button>
 
               </form>

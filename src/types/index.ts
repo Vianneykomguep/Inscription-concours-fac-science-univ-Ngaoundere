@@ -38,5 +38,5 @@ export interface CandidatureWithDetails {
 export interface StepProps {
   candidatureId: string
   onNext: () => void
-  onBack?: () => void
+  onBack: () => void
 }

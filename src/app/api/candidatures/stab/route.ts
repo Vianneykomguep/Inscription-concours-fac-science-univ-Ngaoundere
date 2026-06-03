@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma'
 import { getCurrentUser, generateNumeroDossier } from '@/lib/auth'
 import { uploadFile } from '@/lib/upload'
 import { stabCandidatureSchema } from '@/lib/validations'
+import { candidatureReceiptEmailTemplate, sendEmail } from '@/lib/email'
+import { getReceiptConfig, getReceiptFilePath } from '@/lib/receipts'
 
 export async function POST(request: Request) {
   try {
@@ -98,8 +100,34 @@ export async function POST(request: Request) {
       await prisma.uploadedDocument.createMany({ data: uploadedDocuments })
     }
 
+    const receiptConfig = getReceiptConfig(data.concoursType)
+    const receiptPath = getReceiptFilePath(data.concoursType)
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    const receiptUrl = receiptConfig ? `${appUrl}${receiptConfig.url}` : undefined
+
+    if (receiptConfig && receiptPath) {
+      await sendEmail(
+        user.email,
+        `Recepisse de candidature - ${concours.titre}`,
+        candidatureReceiptEmailTemplate(
+          `${data.prenom} ${data.nom}`.trim(),
+          concours.titre,
+          numeroDossier,
+          receiptUrl,
+        ),
+        [
+          {
+            filename: receiptConfig.fileName,
+            path: receiptPath,
+            contentType: 'application/pdf',
+          },
+        ],
+      )
+    }
+
     return NextResponse.json({
       candidatureId: candidature.id,
+      receiptPdfUrl: receiptConfig?.url,
       receipt: {
         numeroDossier,
         dateDepot: new Date().toLocaleDateString('fr-FR'),
@@ -110,11 +138,11 @@ export async function POST(request: Request) {
         filiere: data.filiere,
         centre: data.centre,
         signatureCandidat: data.signatureCandidat,
-        signatureAgent: data.signatureAgent,
+        pdfUrl: receiptConfig?.url,
       },
     }, { status: 201 })
   } catch (error: any) {
-    if (error?.name === 'ZodError') {
+    if (error.name === 'ZodError') {
       return NextResponse.json({ error: 'Données invalides', details: error.errors }, { status: 400 })
     }
 

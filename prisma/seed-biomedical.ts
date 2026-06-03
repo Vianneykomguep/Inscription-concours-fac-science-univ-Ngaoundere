@@ -3,29 +3,23 @@ import { STAB_FORM_CONFIGS } from '../src/lib/stab-config'
 
 const prisma = new PrismaClient()
 
-const BIOMED_TYPES: ConcoursType[] = [
+const BIOMED_TYPES = [
   'BIOMED_L1',
   'BIOMED_L3',
   'BIOMED_MASTER',
   'BIOMED_MASTER_PRO',
-]
+] as const satisfies readonly ConcoursType[]
 
-const BIOMED_CONDITIONS: Record<ConcoursType, string> = {
-  STAB_L1: '',
-  STAB_L3: '',
-  STAB_MASTER: '',
-  STAB_MASTER_PRO: '',
+type BiomedType = (typeof BIOMED_TYPES)[number]
+
+const BIOMED_CONDITIONS: Record<BiomedType, string> = {
   BIOMED_L1: "Etre titulaire d'un Baccalaureat scientifique, d'un GCE Advanced Level scientifique ou d'un diplome equivalent.",
   BIOMED_L3: "Etre titulaire d'un diplome Bac+2 compatible avec les sciences biomedicales ou medico-sanitaires.",
   BIOMED_MASTER: "Etre titulaire d'une Licence compatible avec les sciences biomedicales ou medico-sanitaires.",
   BIOMED_MASTER_PRO: "Etre titulaire d'une Licence professionnelle ou d'un diplome equivalent, avec stage ou experience professionnelle appreciee.",
 }
 
-const BIOMED_PLACES: Record<ConcoursType, number> = {
-  STAB_L1: 0,
-  STAB_L3: 0,
-  STAB_MASTER: 0,
-  STAB_MASTER_PRO: 0,
+const BIOMED_PLACES: Record<BiomedType, number> = {
   BIOMED_L1: 180,
   BIOMED_L3: 60,
   BIOMED_MASTER: 50,

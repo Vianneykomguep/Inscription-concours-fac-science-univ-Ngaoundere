@@ -19,7 +19,11 @@ export const allowedTransitions: Record<
   ],
 
   [CandidatureStatut.COMPLEMENT_DEMANDE]: [
-    CandidatureStatut.SOUMISE
+    CandidatureStatut.SOUMISE,
+    CandidatureStatut.EN_COURS_EXAMEN,
+    CandidatureStatut.COMPLEMENT_DEMANDE,
+    CandidatureStatut.VALIDEE,
+    CandidatureStatut.REJETEE
   ],
 
   [CandidatureStatut.VALIDEE]: [

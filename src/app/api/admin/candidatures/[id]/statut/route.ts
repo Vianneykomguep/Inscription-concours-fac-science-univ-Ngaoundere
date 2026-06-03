@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/auth'
 import { CandidatureStatut } from '@prisma/client'
-import { sendEmail, statusChangeEmailTemplate } from '@/lib/email'
+import { notificationEmailTemplate, sendEmail } from '@/lib/email'
 import { CANDIDATURE_STATUT_LABELS } from '@/lib/utils'
 import { allowedTransitions } from '@/lib/candidature-status'
 import {
@@ -22,8 +22,8 @@ export async function PUT(
   complementInfo
 }: {
   statut: CandidatureStatut
-  motif?: string
-  complementInfo?: string
+  motif: string
+  complementInfo: string
 } = await request.json()
 
     // Vérification utilisateur
@@ -87,6 +87,16 @@ if (
       )
     }
 
+    if (statut === 'COMPLEMENT_DEMANDE' && !complementInfo) {
+      return NextResponse.json(
+        {
+          error:
+            'Le complement demande doit etre precise'
+        },
+        { status: 400 }
+      )
+    }
+
     // Récupération candidature actuelle
     const existingCandidature =
       await prisma.candidature.findUnique({
@@ -125,13 +135,15 @@ if (
         data: {
           statut,
 
-          ...(motif
-            ? { motifRejet: motif }
-            : {}),
+          motifRejet:
+            statut === 'REJETEE'
+              ? motif
+              : null,
 
-          ...(complementInfo
-            ? { complementInfo }
-            : {}),
+          complementInfo:
+            statut === 'COMPLEMENT_DEMANDE'
+              ? complementInfo
+              : null,
 
           ...(statut === 'VALIDEE'
             ? { validatedAt: new Date() }
@@ -144,22 +156,10 @@ if (
         },
       })
 
-    // Email notification
-    await sendEmail(
-      candidature.user.email,
-
-      `Mise à jour de votre candidature - ${candidature.concours.titre}`,
-
-      statusChangeEmailTemplate(
-        `${candidature.user.firstName} ${candidature.user.lastName}`,
-
-        candidature.concours.titre,
-
-        CANDIDATURE_STATUT_LABELS[statut] || statut,
-
-        motif
-      )
-    )
+    const notificationTitle = `Candidature ${CANDIDATURE_STATUT_LABELS[statut] || statut}`
+    const notificationContent = `Le statut de votre candidature au concours "${candidature.concours.titre}" a ete mis a jour.${
+      motif ? ` Motif : ${motif}` : ''
+    }${complementInfo ? ` Complement demande : ${complementInfo}` : ''}`
 
     // Notification interne
     await prisma.notification.create({
@@ -168,16 +168,21 @@ if (
 
         type: 'STATUS_CHANGE',
 
-        titre:
-          `Candidature ${
-            CANDIDATURE_STATUT_LABELS[statut] || statut
-          }`,
+        titre: notificationTitle,
 
-        contenu:
-          `Le statut de votre candidature au concours "${candidature.concours.titre}" a été mis à jour.`,
+        contenu: notificationContent,
       },
     })
 
+    await sendEmail(
+      candidature.user.email,
+      `Nouvelle notification - ${notificationTitle}`,
+      notificationEmailTemplate(
+        `${candidature.user.firstName} ${candidature.user.lastName}`,
+        notificationTitle,
+        notificationContent
+      )
+    )
     // Audit log
     await prisma.auditLog.create({
       data: {

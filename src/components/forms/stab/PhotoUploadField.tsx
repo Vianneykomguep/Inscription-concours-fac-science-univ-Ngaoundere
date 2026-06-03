@@ -1,7 +1,7 @@
 'use client'
 
 type Props = {
-  value?: File | null
+  value: File | null
   onChange: (file: File | null) => void
 }
 

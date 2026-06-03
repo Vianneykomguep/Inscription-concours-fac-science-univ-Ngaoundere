@@ -14,10 +14,23 @@ export default function ReceiptPreview({ receipt }: Props) {
           <p className="text-sm font-semibold uppercase text-uni-green">Faculté des Sciences - Université de Ngaoundéré</p>
           <h2 className="mt-1 text-2xl font-bold text-gray-900">Récépissé de dépôt</h2>
         </div>
-        <button type="button" onClick={() => window.print()} className="btn-secondary print:hidden">
-          Imprimer
-        </button>
+        <div className="flex flex-wrap gap-2 print:hidden">
+          {receipt.pdfUrl && (
+            <a href={receipt.pdfUrl} target="_blank" rel="noreferrer" className="btn-primary">
+              Telecharger le PDF
+            </a>
+          )}
+          <button type="button" onClick={() => window.print()} className="btn-secondary">
+            Imprimer
+          </button>
+        </div>
       </div>
+
+      {receipt.pdfUrl && (
+        <div className="mb-6 rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900 print:hidden">
+          Le recepisse officiel imprimable a aussi ete envoye par email.
+        </div>
+      )}
 
       <div className="grid gap-4 text-sm md:grid-cols-2">
         <Info label="Numéro dossier" value={receipt.numeroDossier} strong />
@@ -29,9 +42,8 @@ export default function ReceiptPreview({ receipt }: Props) {
         <Info label="Centre concours" value={receipt.centre} />
       </div>
 
-      <div className="mt-10 grid gap-8 md:grid-cols-2">
+      <div className="mt-10">
         <Signature label="Signature candidat" value={receipt.signatureCandidat} />
-        <Signature label="Signature responsable accueil" value={receipt.signatureAgent || 'Non renseignée'} />
       </div>
     </section>
   )

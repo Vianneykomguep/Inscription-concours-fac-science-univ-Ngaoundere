@@ -1,7 +1,7 @@
 import { getCurrentUser } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
-import { AlertTriangle, Bell, CheckCircle, Clock, FileText, GraduationCap, Plus, Trophy } from 'lucide-react'
+import { AlertTriangle, Bell, Clock, FileText, GraduationCap, Plus, Trophy, type LucideIcon } from 'lucide-react'
 import { formatDate, CANDIDATURE_STATUT_LABELS, CANDIDATURE_STATUT_COLORS, formatCurrency } from '@/lib/utils'
 import { STAB_TYPE_LABELS } from '@/lib/stab-config'
 
@@ -62,7 +62,7 @@ export default async function DashboardPage() {
 
           <div className="rounded-lg border border-emerald-100 bg-emerald-50 p-5">
             <p className="text-sm font-semibold text-emerald-900">Prochaine action</p>
-            {nextAction ? (
+        {nextAction ? (
               <div className="mt-3">
                 <p className="font-bold text-emerald-950">{nextAction.concours.titre}</p>
                 <p className="mt-1 text-sm text-emerald-800">
@@ -163,7 +163,7 @@ export default async function DashboardPage() {
   )
 }
 
-function Metric({ label, value, icon: Icon, tone }: { label: string; value: number; icon: React.ComponentType<{ className?: string }>; tone: 'blue' | 'slate' | 'amber' | 'green' }) {
+function Metric({ label, value, icon: Icon, tone }: { label: string; value: number; icon: LucideIcon; tone: 'blue' | 'slate' | 'amber' | 'green' }) {
   const tones = {
     blue: 'bg-blue-50 text-blue-700',
     slate: 'bg-slate-100 text-slate-700',

@@ -111,7 +111,7 @@ export default function AdminStatusActions({
         </div>
       )}
 
-      {['SOUMISE', 'EN_COURS_EXAMEN']
+      {['SOUMISE', 'EN_COURS_EXAMEN', 'COMPLEMENT_DEMANDE']
         .includes(currentStatut) && (
         <>
 

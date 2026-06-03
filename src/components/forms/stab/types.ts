@@ -15,7 +15,6 @@ export type StabFormData = {
   filiere: string
   centre: string
   signatureCandidat: string
-  signatureAgent: string
   academic: Record<string, string>
 }
 
@@ -31,5 +30,5 @@ export type ReceiptData = {
   filiere: string
   centre: string
   signatureCandidat: string
-  signatureAgent?: string
+  pdfUrl: string
 }

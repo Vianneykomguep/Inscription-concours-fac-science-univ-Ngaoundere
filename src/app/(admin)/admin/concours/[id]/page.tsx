@@ -1,7 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
 import { formatDate, formatCurrency } from '@/lib/utils'
-import { Calendar, MapPin, Users, FileText } from 'lucide-react'
 import ConcoursActions from '@/components/admin/ConcoursActions'
 import { getCurrentUser } from '@/lib/auth'
 import { Permission, hasPermission } from '@/lib/permissions'

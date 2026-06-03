@@ -78,7 +78,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     return NextResponse.json(concours)
   } catch (error: any) {
     console.error('Erreur PUT concours:', error)
-    if (error?.name === 'ZodError') {
+    if (error.name === 'ZodError') {
       return NextResponse.json({ error: 'Données invalides', details: error.errors }, { status: 400 })
     }
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
