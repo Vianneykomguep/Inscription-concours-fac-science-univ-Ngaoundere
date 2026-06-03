@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import Image from 'next/image'
+=======
+export const dynamic = 'force-dynamic'
+>>>>>>> 531bcf0e87bcb766ec3e3aecbbc931c39a3a7cb9
 import Link from 'next/link'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
