@@ -248,6 +248,14 @@ function addImage(doc: jsPDF, publicUrl: string, x: number, y: number, width: nu
 }
 
 function imageData(publicUrl: string) {
+  if (publicUrl.startsWith('data:image/')) {
+    const [metadata, data] = publicUrl.split(',')
+    if (!metadata || !data) return null
+
+    const format = metadata.includes('image/png') ? 'PNG' : metadata.includes('image/webp') ? 'WEBP' : 'JPEG'
+    return { data, format }
+  }
+
   const cleanUrl = publicUrl.split('?')[0]
   const filePath = cleanUrl.startsWith('/uploads/')
     ? path.join(process.cwd(), 'public', cleanUrl)

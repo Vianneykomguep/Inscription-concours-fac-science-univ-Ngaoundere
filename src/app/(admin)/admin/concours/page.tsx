@@ -29,7 +29,18 @@ export default async function AdminConcoursPage() {
   const concours = await prisma.concours.findMany({
     include: { _count: { select: { candidatures: true } } },
     orderBy: [{ departement: 'asc' }, { createdAt: 'desc' }],
+  }).catch((error) => {
+    console.error('Admin concours list error:', error)
+    return null
   })
+
+  if (!concours) {
+    return (
+      <AdminPermissionNotice title="Liste des concours indisponible" badge="Erreur base de donnees">
+        Impossible de charger les concours. Verifiez la variable DATABASE_URL et que le schema Prisma est bien synchronise en production.
+      </AdminPermissionNotice>
+    )
+  }
 
   const sortedConcours = [...concours].sort((a, b) => {
     const departmentRank = getDepartmentSortRank(a.departement) - getDepartmentSortRank(b.departement)

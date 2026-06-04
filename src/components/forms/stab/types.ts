@@ -14,7 +14,6 @@ export type StabFormData = {
   photoUrl: string
   filiere: string
   centre: string
-  signatureCandidat: string
   academic: Record<string, string>
 }
 
@@ -29,7 +28,7 @@ export type ReceiptData = {
   lieuNaissance: string
   filiere: string
   centre: string
-  signatureCandidat: string
   pdfUrl?: string
   message?: string
 }
+

@@ -67,7 +67,7 @@ export function hasPermission(
   user: { role: UserRole },
   permission: Permission
 ) {
-  return rolePermissions[user.role].includes(permission)
+  return rolePermissions[user.role]?.includes(permission) ?? false
 }
 
 export function canAccessAdmin(

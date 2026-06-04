@@ -17,9 +17,10 @@ export default function PhotoUploadField({ value, onChange }: Props) {
         onChange={(event) => onChange(event.target.files?.[0] ?? null)}
       />
       <p className="mt-2 text-xs text-gray-500">
-        Formats acceptés : JPG ou PNG. Taille maximale : 5 Mo.
+        Formats acceptés : JPG ou PNG. Taille maximale : 4 Mo.
       </p>
       {value && <p className="mt-2 text-sm text-green-700">{value.name}</p>}
     </div>
   )
 }
+

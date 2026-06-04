@@ -14,7 +14,7 @@ export default function RequiredDocumentsSection({ documents, values, onChange }
     <section className="rounded-lg border border-gray-200 bg-white p-6">
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-gray-900">Pièces à fournir</h2>
-        <p className="mt-1 text-sm text-gray-500">Formats acceptés : PDF, JPG, PNG. Taille maximale : 5 Mo par fichier.</p>
+        <p className="mt-1 text-sm text-gray-500">Formats acceptés : PDF, JPG, PNG. Taille maximale : 4 Mo par fichier.</p>
       </div>
 
       <div className="space-y-4">
@@ -38,3 +38,4 @@ export default function RequiredDocumentsSection({ documents, values, onChange }
     </section>
   )
 }
+

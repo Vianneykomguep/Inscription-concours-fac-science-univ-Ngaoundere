@@ -50,10 +50,6 @@ export default function ReceiptPreview({ receipt }: Props) {
         <Info label="Filière choisie" value={receipt.filiere} />
         <Info label="Centre concours" value={receipt.centre} />
       </div>
-
-      <div className="mt-10">
-        <Signature label="Signature candidat" value={receipt.signatureCandidat} />
-      </div>
     </section>
   )
 }
@@ -67,11 +63,3 @@ function Info({ label, value, strong }: { label: string; value: string; strong?:
   )
 }
 
-function Signature({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <p className="mb-8 text-sm text-gray-500">{label}</p>
-      <div className="border-t border-gray-300 pt-2 text-sm font-medium text-gray-900">{value}</div>
-    </div>
-  )
-}

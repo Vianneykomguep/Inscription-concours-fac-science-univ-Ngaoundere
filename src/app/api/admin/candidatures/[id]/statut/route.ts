@@ -147,7 +147,10 @@ if (
               : null,
 
           ...(statut === 'VALIDEE'
-            ? { validatedAt: new Date() }
+            ? {
+                validatedAt: new Date(),
+                numeroRecepisse: existingCandidature.numeroRecepisse || existingCandidature.numeroDossier,
+              }
             : {}),
         },
 

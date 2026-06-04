@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState, useTransition } from 'react'
 import type { StabFormConfig } from '@/lib/stab-config'
 import AcademicSection from './AcademicSection'
 import CandidateIdentitySection from './CandidateIdentitySection'
-import CandidateSignatureSection from './CandidateSignatureSection'
 import CompetitionCenterSection from './CompetitionCenterSection'
 import FiliereSelector from './FiliereSelector'
 import ReceiptPreview from './ReceiptPreview'
@@ -14,6 +13,8 @@ import type { ReceiptData, StabFormData, UploadedDocumentState } from './types'
 type Props = {
   config: StabFormConfig
 }
+
+const MAX_UPLOAD_SIZE = 4 * 1024 * 1024
 
 export default function STABApplicationForm({ config }: Props) {
   const storageKey = `stab-form-draft:${config.type}`
@@ -36,7 +37,6 @@ export default function STABApplicationForm({ config }: Props) {
     photoUrl: '',
     filiere: '',
     centre: '',
-    signatureCandidat: '',
     academic: {},
   })
 
@@ -74,7 +74,14 @@ export default function STABApplicationForm({ config }: Props) {
     }
 
     if (requiredMissing) {
-      setError('Veuillez fournir toutes les pièces obligatoires.')
+      setError('Veuillez fournir toutes les pieces obligatoires.')
+      return
+    }
+
+    const files = [photo, ...Object.values(documents)].filter((file): file is File => Boolean(file))
+    const oversized = files.find((file) => file.size > MAX_UPLOAD_SIZE)
+    if (oversized) {
+      setError(`Le fichier "${oversized.name}" est trop volumineux. Taille maximale acceptee en ligne : 4 Mo.`)
       return
     }
 
@@ -82,27 +89,43 @@ export default function STABApplicationForm({ config }: Props) {
     payload.append('data', JSON.stringify(data))
     payload.append('photo', photo)
 
-    for (const [type, file] of Object.entries(documents)) {
-      if (file) payload.append(`document:${type}`, file)
-    }
-
     startTransition(async () => {
       try {
         const response = await fetch('/api/candidatures/stab', {
           method: 'POST',
           body: payload,
         })
-        const result = await response.json()
+        const result = await response.json().catch(() => ({}))
 
         if (!response.ok) {
           setError(result.error || 'Impossible de soumettre la candidature.')
           return
         }
 
+        for (const [type, file] of Object.entries(documents)) {
+          if (!file) continue
+
+          const documentPayload = new FormData()
+          documentPayload.append('type', type)
+          documentPayload.append('file', file)
+
+          const uploadResponse = await fetch(`/api/candidatures/${result.candidatureId}/documents`, {
+            method: 'POST',
+            body: documentPayload,
+          })
+          const uploadResult = await uploadResponse.json().catch(() => ({}))
+
+          if (!uploadResponse.ok) {
+            setError(uploadResult.error || `La piece "${file.name}" n'a pas pu etre envoyee.`)
+            return
+          }
+        }
+
         window.localStorage.removeItem(storageKey)
         setReceipt(result.receipt)
-      } catch {
-        setError('Impossible de soumettre la candidature. Vérifiez votre connexion puis réessayez.')
+      } catch (submitError) {
+        console.error('STAB form submit error:', submitError)
+        setError('Impossible de soumettre la candidature. Verifiez votre connexion puis reessayez.')
       }
     })
   }
@@ -121,7 +144,6 @@ export default function STABApplicationForm({ config }: Props) {
       <CompetitionCenterSection centers={config.centers} value={data.centre} onChange={(value) => updateField('centre', value)} />
       <FiliereSelector filieres={config.filieres} value={data.filiere} onChange={(value) => updateField('filiere', value)} />
       <RequiredDocumentsSection documents={config.documents} values={documents} onChange={(type, file) => setDocuments((current) => ({ ...current, [type]: file }))} />
-      <CandidateSignatureSection data={data} onChange={updateField} />
 
       {error && <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>}
 

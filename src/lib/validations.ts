@@ -45,7 +45,6 @@ export const stabCandidatureSchema = z.object({
   regionOrigine: z.string().min(2, "La région d'origine est requise"),
   departementOrigine: z.string().min(2, "Le département d'origine est requis"),
   telephone: z.string().optional(),
-  signatureCandidat: z.string().min(2, 'La signature du candidat est requise'),
   academic: z.record(z.string()).default({}),
 })
 
@@ -72,3 +71,4 @@ export const candidatureStep3Schema = z.object({
 export type RegisterInput = z.infer<typeof registerSchema>
 export type LoginInput = z.infer<typeof loginSchema>
 export type ConcoursInput = z.infer<typeof concoursSchema>
+

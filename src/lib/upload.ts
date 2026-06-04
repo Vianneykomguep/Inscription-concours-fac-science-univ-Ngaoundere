@@ -3,7 +3,7 @@ import path from 'path'
 import { v4 as uuidv4 } from 'uuid'
 
 const UPLOAD_DIR = process.env.UPLOAD_DIR || './public/uploads'
-const MAX_FILE_SIZE = parseInt(process.env.MAX_FILE_SIZE || '5242880')
+const MAX_FILE_SIZE = parseInt(process.env.MAX_FILE_SIZE || '4194304')
 
 const ALLOWED_TYPES = [
   'application/pdf',
@@ -18,12 +18,22 @@ export async function uploadFile(file: File, subDir: string = 'documents'): Prom
     throw new Error('Type de fichier non autorisé. Formats acceptés: PDF, JPG, PNG')
   }
 
+  const buffer = Buffer.from(await file.arrayBuffer())
+
+  if (process.env.VERCEL) {
+    return {
+      url: `data:${file.type};base64,${buffer.toString('base64')}`,
+      fileName: file.name,
+      size: file.size,
+      mimeType: file.type,
+    }
+  }
+
   const ext = file.name.split('.').pop()
   const fileName = `${uuidv4()}.${ext}`
   const dirPath = path.join(UPLOAD_DIR, subDir)
   await mkdir(dirPath, { recursive: true })
 
-  const buffer = Buffer.from(await file.arrayBuffer())
   const filePath = path.join(dirPath, fileName)
   await writeFile(filePath, buffer)
 

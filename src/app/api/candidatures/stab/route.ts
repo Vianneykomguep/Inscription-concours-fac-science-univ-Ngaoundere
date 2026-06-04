@@ -74,7 +74,6 @@ export async function POST(request: Request) {
         statut: 'SOUMISE',
         submittedAt: new Date(),
         numeroDossier,
-        numeroRecepisse: numeroDossier,
       },
     })
 
@@ -109,7 +108,6 @@ export async function POST(request: Request) {
         lieuNaissance: data.lieuNaissance,
         filiere: data.filiere,
         centre: data.centre,
-        signatureCandidat: data.signatureCandidat,
         message: "Votre dossier a bien ete depose. Le recepisse officiel sera envoye par email apres validation administrative.",
       },
     }, { status: 201 })
