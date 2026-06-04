@@ -26,7 +26,7 @@ const ROLE_BADGES: Record<UserRole, string> = {
 export default async function AdminUsersPage({
   searchParams,
 }: {
-  searchParams: { role: string; statut: string; q: string }
+  searchParams?: { role?: string | string[]; statut?: string | string[]; q?: string | string[] }
 }) {
   const currentUser = await getCurrentUser()
   if (!currentUser || !hasPermission(currentUser, Permission.MANAGE_USERS)) {
@@ -37,9 +37,10 @@ export default async function AdminUsersPage({
     )
   }
 
-  const role = Object.values(UserRole).includes(searchParams.role as UserRole) ? searchParams.role as UserRole : undefined
-  const statut = searchParams.statut
-  const q = searchParams.q.trim()
+  const roleParam = firstValue(searchParams?.role)
+  const statut = firstValue(searchParams?.statut) ?? ''
+  const q = (firstValue(searchParams?.q) ?? '').trim()
+  const role = Object.values(UserRole).includes(roleParam as UserRole) ? roleParam as UserRole : undefined
 
   const where = {
     ...(role ? { role } : {}),
@@ -228,4 +229,8 @@ function Metric({ label, value, icon: Icon }: { label: string; value: number; ic
 
 function initials(firstName: string, lastName: string) {
   return `${firstName?.[0] ?? ''}${lastName?.[0] ?? ''}`.toUpperCase() || 'U'
+}
+
+function firstValue(value?: string | string[]) {
+  return Array.isArray(value) ? value[0] : value
 }
