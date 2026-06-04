@@ -12,7 +12,10 @@ export default function ReceiptPreview({ receipt }: Props) {
       <div className="mb-6 flex items-start justify-between gap-4 border-b border-gray-200 pb-4">
         <div>
           <p className="text-sm font-semibold uppercase text-uni-green">Faculté des Sciences - Université de Ngaoundéré</p>
-          <h2 className="mt-1 text-2xl font-bold text-gray-900">Récépissé de dépôt</h2>
+          <h2 className="mt-1 text-2xl font-bold text-gray-900">Dossier soumis</h2>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-600">
+            {receipt.message || "Votre dossier a bien ete depose. Le recepisse officiel sera envoye apres validation administrative."}
+          </p>
         </div>
         <div className="flex flex-wrap gap-2 print:hidden">
           {receipt.pdfUrl && (
@@ -29,6 +32,12 @@ export default function ReceiptPreview({ receipt }: Props) {
       {receipt.pdfUrl && (
         <div className="mb-6 rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900 print:hidden">
           Le recepisse officiel imprimable a aussi ete envoye par email.
+        </div>
+      )}
+
+      {!receipt.pdfUrl && (
+        <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 print:hidden">
+          Conservez votre numero de dossier. Le recepisse PDF sera transmis par email uniquement apres validation du dossier par l'administration.
         </div>
       )}
 

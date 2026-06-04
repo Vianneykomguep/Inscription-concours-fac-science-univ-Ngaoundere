@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState, useTransition } from 'react'
+import { useEffect, useMemo, useState, useTransition } from 'react'
 import type { StabFormConfig } from '@/lib/stab-config'
 import AcademicSection from './AcademicSection'
 import CandidateIdentitySection from './CandidateIdentitySection'
@@ -16,6 +16,7 @@ type Props = {
 }
 
 export default function STABApplicationForm({ config }: Props) {
+  const storageKey = `stab-form-draft:${config.type}`
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   const [receipt, setReceipt] = useState<ReceiptData | null>(null)
@@ -38,6 +39,21 @@ export default function STABApplicationForm({ config }: Props) {
     signatureCandidat: '',
     academic: {},
   })
+
+  useEffect(() => {
+    const saved = window.localStorage.getItem(storageKey)
+    if (!saved) return
+
+    try {
+      setData((current) => ({ ...current, ...JSON.parse(saved), concoursType: config.type }))
+    } catch {
+      window.localStorage.removeItem(storageKey)
+    }
+  }, [config.type, storageKey])
+
+  useEffect(() => {
+    window.localStorage.setItem(storageKey, JSON.stringify(data))
+  }, [data, storageKey])
 
   const requiredMissing = useMemo(
     () => config.documents.some((document) => document.required && !documents[document.type]),
@@ -83,6 +99,7 @@ export default function STABApplicationForm({ config }: Props) {
           return
         }
 
+        window.localStorage.removeItem(storageKey)
         setReceipt(result.receipt)
       } catch {
         setError('Impossible de soumettre la candidature. Vérifiez votre connexion puis réessayez.')
@@ -96,6 +113,9 @@ export default function STABApplicationForm({ config }: Props) {
 
   return (
     <form onSubmit={submit} className="space-y-6">
+      <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm leading-6 text-emerald-900">
+        Vos informations sont sauvegardees automatiquement sur cet appareil pendant le remplissage. Le recepisse officiel sera envoye par email apres validation du dossier par l'administration.
+      </div>
       <CandidateIdentitySection data={data} photo={photo} onPhotoChange={setPhoto} onChange={updateField} />
       <AcademicSection type={config.type} data={data} onChange={(academic) => setData((current) => ({ ...current, academic }))} />
       <CompetitionCenterSection centers={config.centers} value={data.centre} onChange={(value) => updateField('centre', value)} />

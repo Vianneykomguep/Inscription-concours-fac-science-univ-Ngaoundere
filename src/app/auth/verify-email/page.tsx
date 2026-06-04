@@ -71,7 +71,16 @@ export default function VerifyEmailPage() {
         </div>
         <h2 className="mb-2 text-2xl font-bold text-gray-900">Vérifiez votre email</h2>
         <p className="mb-8 text-gray-600">Entrez le code à 6 chiffres envoyé à votre adresse email</p>
-        {error && <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
+        {error && (
+          <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+            {error}
+            {error.includes("email de vérification") || error.includes("Renvoyer le code") ? (
+              <p className="mt-2 font-semibold">
+                Cliquez sur le bouton ci-dessous pour demander un nouveau code.
+              </p>
+            ) : null}
+          </div>
+        )}
         {message && <div className="mb-4 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700">{message}</div>}
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
@@ -91,9 +100,9 @@ export default function VerifyEmailPage() {
           type="button"
           onClick={resendCode}
           disabled={resending}
-          className="mt-4 text-sm font-semibold text-uni-green hover:underline disabled:opacity-60"
+          className="btn-secondary mt-4 w-full disabled:opacity-60"
         >
-          {resending ? 'Renvoi en cours...' : 'Renvoyer le code'}
+          {resending ? 'Renvoi en cours...' : 'Renvoyer le code de verification'}
         </button>
       </div>
     </div>

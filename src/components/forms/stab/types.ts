@@ -30,5 +30,6 @@ export type ReceiptData = {
   filiere: string
   centre: string
   signatureCandidat: string
-  pdfUrl: string
+  pdfUrl?: string
+  message?: string
 }

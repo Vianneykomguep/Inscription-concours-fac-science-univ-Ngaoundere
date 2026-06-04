@@ -1,20 +1,31 @@
 import nodemailer from 'nodemailer'
 import type Mail from 'nodemailer/lib/mailer'
 
+const smtpUser = process.env.SMTP_USER
+const smtpPass = process.env.SMTP_PASS
+const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com'
+const smtpPort = parseInt(process.env.SMTP_PORT || '587')
+const smtpFrom = process.env.SMTP_FROM || smtpUser || 'noreply@univ-ndere.cm'
+
 const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: parseInt(process.env.SMTP_PORT || '587'),
+  host: smtpHost,
+  port: smtpPort,
   secure: process.env.SMTP_PORT === '465',
   auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
+    user: smtpUser,
+    pass: smtpPass,
   },
 })
 
 export async function sendEmail(to: string, subject: string, html: string, attachments: Mail.Attachment[] = []) {
+  if (!smtpUser || !smtpPass) {
+    console.error('Email configuration missing: SMTP_USER and SMTP_PASS are required.')
+    return false
+  }
+
   try {
     await transporter.sendMail({
-      from: process.env.SMTP_FROM || 'noreply@univ-ndere.cm',
+      from: smtpFrom,
       to, subject, html, attachments,
     })
     return true

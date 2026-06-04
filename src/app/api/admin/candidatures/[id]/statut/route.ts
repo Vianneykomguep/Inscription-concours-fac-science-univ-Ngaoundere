@@ -2,9 +2,10 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/auth'
 import { CandidatureStatut } from '@prisma/client'
-import { notificationEmailTemplate, sendEmail } from '@/lib/email'
+import { candidatureReceiptEmailTemplate, notificationEmailTemplate, sendEmail } from '@/lib/email'
 import { CANDIDATURE_STATUT_LABELS } from '@/lib/utils'
 import { allowedTransitions } from '@/lib/candidature-status'
+import { getReceiptConfig, getReceiptFilePath } from '@/lib/receipts'
 import {
   Permission,
   hasPermission,
@@ -156,10 +157,47 @@ if (
         },
       })
 
+    let receiptEmailSent = false
+    let receiptEmailAttempted = false
+    if (statut === 'VALIDEE') {
+      const receiptConfig = getReceiptConfig(candidature.type)
+      const receiptPath = getReceiptFilePath(candidature.type)
+      const receiptUrl = receiptConfig ? `${new URL('/', request.url).origin}${receiptConfig.url}` : undefined
+
+      if (receiptConfig && receiptPath) {
+        receiptEmailAttempted = true
+        receiptEmailSent = await sendEmail(
+          candidature.user.email,
+          `Recepisse de candidature - ${candidature.concours.titre}`,
+          candidatureReceiptEmailTemplate(
+            `${candidature.prenom || candidature.user.firstName} ${candidature.nom || candidature.user.lastName}`.trim(),
+            candidature.concours.titre,
+            candidature.numeroDossier,
+            receiptUrl,
+          ),
+          [
+            {
+              filename: receiptConfig.fileName,
+              path: receiptPath,
+              contentType: 'application/pdf',
+            },
+          ],
+        )
+      }
+    }
+
     const notificationTitle = `Candidature ${CANDIDATURE_STATUT_LABELS[statut] || statut}`
     const notificationContent = `Le statut de votre candidature au concours "${candidature.concours.titre}" a ete mis a jour.${
       motif ? ` Motif : ${motif}` : ''
-    }${complementInfo ? ` Complement demande : ${complementInfo}` : ''}`
+    }${complementInfo ? ` Complement demande : ${complementInfo}` : ''}${
+      statut === 'VALIDEE'
+        ? receiptEmailAttempted && receiptEmailSent
+          ? ' Votre recepisse officiel a ete envoye par email.'
+          : receiptEmailAttempted
+            ? ' Votre dossier est valide. Le recepisse officiel sera transmis par email apres verification de la configuration email.'
+            : ''
+        : ''
+    }`
 
     // Notification interne
     await prisma.notification.create({
