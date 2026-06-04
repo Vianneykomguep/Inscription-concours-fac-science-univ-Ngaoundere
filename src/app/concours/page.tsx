@@ -2,7 +2,7 @@ import Image from 'next/image'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import { getCurrentUser } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
+import { hasDatabaseUrl, prisma } from '@/lib/prisma'
 import Link from 'next/link'
 import { formatDate, formatCurrency } from '@/lib/utils'
 import { getConcoursApplyPath, getConcoursDetailPath } from '@/lib/concours-links'
@@ -10,10 +10,13 @@ import { STAB_TYPE_LABELS, getDepartmentSortRank } from '@/lib/stab-config'
 
 export default async function ConcoursListPage() {
   const user = await getCurrentUser()
-  const concours = await prisma.concours.findMany({
+  const concours = hasDatabaseUrl ? await prisma.concours.findMany({
     where: { isActive: true, statut: { in: ['PUBLIE', 'EN_COURS'] } },
     orderBy: [{ departement: 'asc' }, { dateCloture: 'asc' }],
-  })
+  }).catch((error) => {
+    console.error('Concours list error:', error)
+    return []
+  }) : []
 
   const sortedConcours = [...concours].sort((a, b) => {
     const departmentRank = getDepartmentSortRank(a.departement) - getDepartmentSortRank(b.departement)

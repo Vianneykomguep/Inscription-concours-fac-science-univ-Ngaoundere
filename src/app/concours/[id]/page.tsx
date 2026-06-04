@@ -3,7 +3,7 @@ import Footer from '@/components/layout/Footer'
 import type React from 'react'
 import { getCurrentUser } from '@/lib/auth'
 import { getConcoursApplyPath } from '@/lib/concours-links'
-import { prisma } from '@/lib/prisma'
+import { hasDatabaseUrl, prisma } from '@/lib/prisma'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { ArrowLeft, ArrowRight, CalendarDays, CheckCircle2, Download, FileText, MapPin, Users, type LucideIcon } from 'lucide-react'
 import Link from 'next/link'
@@ -11,9 +11,14 @@ import { notFound } from 'next/navigation'
 
 export default async function ConcoursDetailPage({ params }: { params: { id: string } }) {
   const user = await getCurrentUser()
+  if (!hasDatabaseUrl) notFound()
+
   const concours = await prisma.concours.findUnique({
     where: { id: params.id },
     include: { documentsRequis: { orderBy: { ordre: 'asc' } }, _count: { select: { candidatures: true } } },
+  }).catch((error) => {
+    console.error('Concours detail error:', error)
+    return null
   })
 
   if (!concours || !concours.isActive) notFound()

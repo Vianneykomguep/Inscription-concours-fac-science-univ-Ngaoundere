@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 import { cookies } from 'next/headers'
-import { prisma } from './prisma'
+import { hasDatabaseUrl, prisma } from './prisma'
 import type { UserRole } from '@prisma/client'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-me'
@@ -34,6 +34,8 @@ export function verifyToken(token: string): JWTPayload | null {
 }
 
 export async function getCurrentUser() {
+  if (!hasDatabaseUrl) return null
+
   const cookieStore = await cookies()
   const token = cookieStore.get('auth-token')?.value
   if (!token) return null

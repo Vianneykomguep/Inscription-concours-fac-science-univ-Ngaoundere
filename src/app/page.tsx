@@ -5,7 +5,7 @@ import Link from 'next/link'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import { getCurrentUser } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
+import { hasDatabaseUrl, prisma } from '@/lib/prisma'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { getConcoursApplyPath, getConcoursDetailPath } from '@/lib/concours-links'
 import { canAccessAdmin } from '@/lib/permissions'
@@ -28,10 +28,13 @@ const steps = [
 export default async function HomePage() {
   const user = await getCurrentUser()
   const isAdminUser = user ? canAccessAdmin(user) : false
-  const concours = (await prisma.concours.findMany({
+  const concours = (hasDatabaseUrl ? await prisma.concours.findMany({
     where: { statut: 'PUBLIE' },
     orderBy: { dateCloture: 'asc' },
-  })).sort((a, b) => {
+  }).catch((error) => {
+    console.error('Home concours error:', error)
+    return []
+  }) : []).sort((a, b) => {
     const departmentRank = getDepartmentSortRank(a.departement) - getDepartmentSortRank(b.departement)
     if (departmentRank !== 0) return departmentRank
     return a.dateCloture.getTime() - b.dateCloture.getTime()

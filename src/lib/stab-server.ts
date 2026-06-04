@@ -1,9 +1,11 @@
 import type { ConcoursType } from '@prisma/client'
-import { prisma } from '@/lib/prisma'
+import { hasDatabaseUrl, prisma } from '@/lib/prisma'
 import { STAB_FORM_CONFIGS, type StabDocument, type StabFormConfig } from '@/lib/stab-config'
 
 export async function getActiveStabFormConfig(type: ConcoursType): Promise<StabFormConfig> {
   const base = STAB_FORM_CONFIGS[type]
+  if (!hasDatabaseUrl) return base
+
   const concours = await prisma.concours.findFirst({
     where: {
       type,
@@ -11,6 +13,9 @@ export async function getActiveStabFormConfig(type: ConcoursType): Promise<StabF
       statut: { in: ['PUBLIE', 'EN_COURS'] },
     },
     orderBy: { dateOuverture: 'desc' },
+  }).catch((error) => {
+    console.error('STAB config error:', error)
+    return null
   })
 
   if (!concours) return base

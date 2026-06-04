@@ -1,7 +1,13 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { hasDatabaseUrl, prisma } from '@/lib/prisma'
+
+export const dynamic = 'force-dynamic'
 
 export async function GET(request: Request, { params }: { params: { id: string } }) {
+  if (!hasDatabaseUrl) {
+    return NextResponse.json({ error: 'Base de donnees non configuree' }, { status: 503 })
+  }
+
   try {
     const concours = await prisma.concours.findUnique({
       where: { id: params.id },

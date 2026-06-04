@@ -1,7 +1,13 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { hasDatabaseUrl, prisma } from '@/lib/prisma'
+
+export const dynamic = 'force-dynamic'
 
 export async function GET() {
+  if (!hasDatabaseUrl) {
+    return NextResponse.json([])
+  }
+
   try {
     const concours = await prisma.concours.findMany({
       where: { statut: { in: ['PUBLIE', 'EN_COURS'] } },
